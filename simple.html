@@ -1,0 +1,4213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐情感插画生成器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 动画关键帧 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+        }
+
+        @keyframes slideInFromLeft {
+            0% { transform: translateX(-30px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInFromRight {
+            0% { transform: translateX(30px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInFromBottom {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1.1); }
+            75% { transform: scale(1.3); }
+        }
+
+        @keyframes musicNote {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-3px) rotate(10deg); opacity: 0.6; }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideInFromTop {
+            0% { transform: translateY(-30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInScale {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes typewriter {
+            0% { width: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { width: 100%; opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes coverGlow {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(0,0,0,0.2),
+                           0 0 0 0 rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 12px 35px rgba(0,0,0,0.3),
+                           0 0 0 4px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        @keyframes vinylSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 特殊效果 */
+        .comment-card:hover .shine-effect {
+            left: 100% !important;
+        }
+
+        /* 封面悬停效果 */
+        .song-cover:hover {
+            animation: coverGlow 1.5s ease-in-out infinite;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #495057;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #495057;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .form-section, .preview-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-section h3, .preview-section h3 {
+            color: #495057;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #adb5bd;
+            box-shadow: 0 0 0 3px rgba(173, 181, 189, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #868e96, #6c757d);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            font-weight: 300;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* 评论卡片样式 */
+        .comment-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .avatar-container {
+            flex-shrink: 0;
+        }
+
+        .avatar-ring {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e9ecef, #ced4da);
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 18px;
+            font-weight: 300;
+            color: #6c757d;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .username-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-size: 16px;
+            font-weight: 400;
+            color: #495057;
+        }
+
+        .vip-badge {
+            background: linear-gradient(135deg, #adb5bd, #868e96);
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 300;
+        }
+
+        .date-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date {
+            font-size: 13px;
+            color: #adb5bd;
+            font-weight: 300;
+        }
+
+        .hot-tag {
+            background: #6c757d;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 300;
+        }
+
+        .likes-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .likes-count {
+            font-size: 14px;
+            color: #868e96;
+            font-weight: 400;
+        }
+
+        .like-icon {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        .comment-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #495057;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            font-weight: 300;
+        }
+
+        .comment-footer {
+            border-top: 1px solid #e9ecef;
+            padding-top: 12px;
+        }
+
+        .reply-count {
+            font-size: 14px;
+            color: #868e96;
+            font-weight: 300;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #868e96, #6c757d);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 300;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #6c757d, #495057);
+            box-shadow: 0 8px 24px rgba(108, 117, 125, 0.2);
+        }
+
+        .export-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 动画效果 */
+        .comment-card {
+            transition: all 0.3s ease;
+        }
+
+        .comment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-section, .preview-section {
+            transition: all 0.3s ease;
+        }
+
+        /* 加载动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* 歌曲搜索结果样式 */
+        .song-results {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+        }
+
+        .song-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .song-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(4px);
+        }
+
+        .song-item:last-child {
+            border-bottom: none;
+        }
+
+        .song-cover {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #e9ecef;
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-name {
+            font-size: 14px;
+            font-weight: 400;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+
+        .song-artist {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* 选中的歌曲显示 */
+        .selected-song {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .selected-song-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .selected-song-cover {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .selected-song-details h4 {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 4px;
+            font-weight: 400;
+        }
+
+        .selected-song-details p {
+            font-size: 12px;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* 评论卡片中的歌曲区域样式 */
+        .song-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(248, 249, 250, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(233, 236, 239, 0.5);
+        }
+
+        .song-cover-container {
+            flex-shrink: 0;
+        }
+
+        .card-song-cover {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card-song-cover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-song-cover::after {
+            content: '▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-song-cover:hover::after {
+            opacity: 1;
+        }
+
+        .song-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 15px;
+            font-weight: 400;
+            color: #495057;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-details .song-artist {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 300;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-section, .preview-section {
+                padding: 16px;
+            }
+
+            .form-section h3, .preview-section h3 {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            .form-group input, .form-group textarea, .form-group select {
+                font-size: 16px; /* 防止iOS缩放 */
+                padding: 10px;
+            }
+
+            .comment-card {
+                max-width: 100%;
+                padding: 16px;
+            }
+
+            .avatar-ring {
+                width: 45px;
+                height: 45px;
+            }
+
+            .avatar {
+                width: 41px;
+                height: 41px;
+                font-size: 16px;
+            }
+
+            .username {
+                font-size: 15px;
+            }
+
+            .comment-content {
+                font-size: 15px;
+            }
+
+            /* 移动端歌曲区域优化 */
+            .song-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .card-song-cover {
+                width: 50px;
+                height: 50px;
+            }
+
+            .song-title {
+                font-size: 14px;
+            }
+
+            .song-details .song-artist {
+                font-size: 12px;
+            }
+
+            .song-results {
+                max-height: 150px;
+            }
+
+            .song-item {
+                padding: 10px;
+            }
+
+            .song-cover {
+                width: 35px;
+                height: 35px;
+            }
+
+            .selected-song-cover {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                gap: 15px;
+            }
+
+            .form-section, .preview-section {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>音乐情感插画生成器</h1>
+            <p>搜索歌曲，获取真实热评，生成专属插画</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <h3>填写信息</h3>
+
+                <div class="form-group">
+                    <label>快速模板</label>
+                    <select id="template" onchange="loadTemplate()">
+                        <option value="">选择模板</option>
+                        <option value="template1">深夜独白</option>
+                        <option value="template2">失眠夜晚</option>
+                        <option value="template3">孤独时刻</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" value="深海里的鱼" placeholder="请输入用户名">
+                </div>
+
+                <div class="form-group">
+                    <label for="avatar">头像</label>
+                    <input type="file" id="avatar" accept="image/*" style="margin-bottom: 5px;">
+                    <small style="color: #666; font-size: 12px;">不上传头像将显示用户名首字母</small>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isVip">
+                        <label for="isVip">VIP用户</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">日期</label>
+                    <input type="text" id="date" value="2024年03月15日" placeholder="2024年03月15日">
+                    <button type="button" class="btn" onclick="setToday()">使用今天</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="hotTag">标签</label>
+                    <select id="hotTag">
+                        <option value="" selected>无标签</option>
+                        <option value="热评">热评</option>
+                        <option value="精彩评论">精彩评论</option>
+                        <option value="最新评论">最新评论</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="songSearch">搜索歌曲</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="songSearch" placeholder="输入歌曲名或歌手名搜索" style="flex: 1;">
+                        <button type="button" class="btn" onclick="searchSong()" id="searchBtn">搜索歌曲</button>
+                    </div>
+                    <small style="color: #6c757d; font-size: 12px; margin-top: 4px; display: block;">
+                        💡 提示：搜索歌曲后可选择"获取所有评论"或"仅热门评论"来使用真实的音乐评论
+                    </small>
+
+                    <!-- CORS错误提示 -->
+                    <div id="corsWarning" style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin: 12px 0;">
+                        <h4 style="margin: 0 0 8px 0; color: #856404;">⚠️ 网络访问受限</h4>
+                        <p style="margin: 0 0 8px 0; color: #856404; font-size: 14px;">由于浏览器安全限制，直接打开HTML文件无法访问音乐API。</p>
+                        <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                            <strong style="color: #495057;">解决方案：</strong>
+                            <ol style="margin: 4px 0 0 0; padding-left: 20px; color: #495057; font-size: 13px;">
+                                <li>打开命令行/终端</li>
+                                <li>进入项目目录</li>
+                                <li>运行：<code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">python server.py</code></li>
+                                <li>访问：<a href="http://localhost:8000" target="_blank" style="color: #007bff;">http://localhost:8000</a></li>
+                            </ol>
+                        </div>
+                        <button onclick="hideCorsWarning()" style="background: #ffc107; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">我知道了</button>
+                    </div>
+
+                    <div id="songResults" class="song-results"></div>
+                    <div id="selectedSong" class="selected-song">
+                        <div class="selected-song-info">
+                            <img id="selectedSongCover" class="selected-song-cover" src="" alt="歌曲封面">
+                            <div class="selected-song-details">
+                                <h4 id="selectedSongName"></h4>
+                                <p id="selectedSongArtist"></p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn" onclick="clearSelectedSong()" style="margin-top: 8px;">清除选择</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">评论内容</label>
+                    <textarea id="content" placeholder="请输入评论内容" rows="4">凌晨三点的雨声，像极了我内心的独白</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="likes">点赞数</label>
+                    <input type="number" id="likes" value="2847" placeholder="2847" min="0">
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <h3 style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    font-weight: 600;
+                    margin-bottom: 16px;
+                    text-align: center;
+                ">🎬 抖音海报预览</h3>
+
+                <!-- 海报尺寸选择 -->
+                <div style="
+                    display: flex;
+                    justify-content: center;
+                    gap: 12px;
+                    margin-bottom: 16px;
+                ">
+                    <button onclick="setPosterSize('vertical')" id="verticalBtn" style="
+                        padding: 8px 16px;
+                        border: 2px solid #667eea;
+                        background: #667eea;
+                        color: white;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        transition: all 0.3s ease;
+                    ">📱 竖屏 (9:16)</button>
+                    <button onclick="setPosterSize('square')" id="squareBtn" style="
+                        padding: 8px 16px;
+                        border: 2px solid #667eea;
+                        background: transparent;
+                        color: #667eea;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        transition: all 0.3s ease;
+                    ">⬜ 方形 (1:1)</button>
+                </div>
+                <!-- 海报容器 -->
+                <div class="poster-container" id="posterContainer" style="
+                    width: 300px;
+                    height: 533px;
+                    margin: 0 auto;
+                    position: relative;
+                    border-radius: 24px;
+                    overflow: hidden;
+                    box-shadow:
+                        0 25px 70px rgba(0,0,0,0.25),
+                        0 10px 30px rgba(0,0,0,0.15),
+                        0 0 0 1px rgba(255,255,255,0.1);
+                    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+                    backdrop-filter: blur(10px);
+                " onmouseover="this.style.transform='scale(1.03) translateY(-5px)'; this.style.boxShadow='0 35px 90px rgba(0,0,0,0.35), 0 15px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.2)';"
+                   onmouseout="this.style.transform='scale(1) translateY(0px)'; this.style.boxShadow='0 25px 70px rgba(0,0,0,0.25), 0 10px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1)';">
+
+                    <!-- 歌曲封面背景 -->
+                    <div id="backgroundCover" style="
+                        position: absolute;
+                        top: -5%;
+                        left: -5%;
+                        right: -5%;
+                        bottom: -5%;
+                        background-image: url('');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        opacity: 0;
+                        transform: scale(1.1);
+                        filter: blur(1px) brightness(0.9) saturate(1.2);
+                        transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                        z-index: 1;
+                    "></div>
+
+                    <!-- 动态背景（备用） -->
+                    <div id="fallbackBackground" style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(135deg,
+                            #ff9a9e 0%,
+                            #fecfef 25%,
+                            #fecfef 50%,
+                            #ffc3a0 75%,
+                            #ff9a9e 100%);
+                        background-size: 400% 400%;
+                        animation: gradientShift 12s ease infinite;
+                        opacity: 1;
+                        transform: scale(1);
+                        transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+                        z-index: 0;
+                    "></div>
+
+                    <!-- 毛玻璃遮罩层 -->
+                    <div id="glassOverlay" style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(135deg,
+                            rgba(255, 255, 255, 0.15) 0%,
+                            rgba(248, 250, 252, 0.1) 20%,
+                            rgba(240, 245, 251, 0.05) 50%,
+                            rgba(235, 240, 248, 0.1) 80%,
+                            rgba(255, 255, 255, 0.2) 100%);
+                        backdrop-filter: blur(20px) saturate(1.2) brightness(1.05) contrast(1.05);
+                        z-index: 2;
+                    "></div>
+
+                    <!-- 色彩增强层 -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background:
+                            radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+                            radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.08) 0%, transparent 50%),
+                            linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+                        mix-blend-mode: overlay;
+                        z-index: 2.5;
+                    "></div>
+
+                    <!-- 纹理叠加 -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background:
+                            radial-gradient(circle at 30% 20%, rgba(255,255,255,0.3) 0%, transparent 50%),
+                            radial-gradient(circle at 70% 80%, rgba(255,255,255,0.25) 0%, transparent 50%),
+                            linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+                        animation: float 15s ease-in-out infinite;
+                        z-index: 3;
+                    "></div>
+
+                    <!-- 装饰图案 -->
+                    <div style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background-image:
+                            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                            radial-gradient(circle at 40% 60%, rgba(255,255,255,0.1) 0%, transparent 50%);
+                        animation: float 10s ease-in-out infinite;
+                        z-index: 4;
+                    "></div>
+
+                    <!-- 主要内容区域 -->
+                    <div class="comment-card" id="commentCard" style="
+                        position: relative;
+                        height: 100%;
+                        padding: 40px 30px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        z-index: 5;
+                    ">
+                    <!-- 顶部用户信息 -->
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                        margin-bottom: 30px;
+                        animation: slideInFromTop 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                    ">
+                        <!-- 头像 -->
+                        <div id="avatarDisplay" style="
+                            width: 56px;
+                            height: 56px;
+                            border-radius: 50%;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 20px;
+                            font-weight: 700;
+                            flex-shrink: 0;
+                            box-shadow:
+                                0 8px 25px rgba(102, 126, 234, 0.3),
+                                0 0 0 3px rgba(255,255,255,0.8),
+                                inset 0 2px 0 rgba(255,255,255,0.3);
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            position: relative;
+                            overflow: hidden;
+                        " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 35px rgba(102, 126, 234, 0.4), 0 0 0 4px rgba(255,255,255,0.9), inset 0 2px 0 rgba(255,255,255,0.4)';"
+                           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.3), 0 0 0 3px rgba(255,255,255,0.8), inset 0 2px 0 rgba(255,255,255,0.3)';">
+                            深
+
+                            <!-- 头像光环 -->
+                            <div style="
+                                position: absolute;
+                                top: -3px;
+                                left: -3px;
+                                right: -3px;
+                                bottom: -3px;
+                                border-radius: 50%;
+                                background: conic-gradient(from 0deg, #667eea, #764ba2, #667eea);
+                                animation: rotate 4s linear infinite;
+                                opacity: 0.6;
+                                z-index: -1;
+                            "></div>
+                        </div>
+
+                        <!-- 用户信息 -->
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+                                <!-- 用户名 -->
+                                <span id="usernameDisplay" style="
+                                    color: #2c3e50;
+                                    font-size: 17px;
+                                    font-weight: 800;
+                                    text-shadow: 0 1px 3px rgba(255,255,255,0.8);
+                                    letter-spacing: 0.3px;
+                                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    background-clip: text;
+                                ">深海里的鱼</span>
+
+                                <!-- VIP标识 -->
+                                <span id="vipBadge" style="
+                                    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+                                    color: white;
+                                    font-size: 9px;
+                                    padding: 4px 8px;
+                                    border-radius: 10px;
+                                    font-weight: 700;
+                                    display: none;
+                                    box-shadow:
+                                        0 3px 10px rgba(243, 156, 18, 0.4),
+                                        inset 0 1px 0 rgba(255,255,255,0.3);
+                                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                                    animation: pulse 2s ease-in-out infinite;
+                                    letter-spacing: 0.5px;
+                                ">👑 VIP</span>
+
+                                <!-- 热评标签 -->
+                                <span id="hotTagDisplay" style="
+                                    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                                    color: white;
+                                    font-size: 9px;
+                                    padding: 4px 8px;
+                                    border-radius: 10px;
+                                    font-weight: 700;
+                                    display: none;
+                                    box-shadow:
+                                        0 3px 10px rgba(231, 76, 60, 0.4),
+                                        inset 0 1px 0 rgba(255,255,255,0.3);
+                                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                                    animation: bounce 1s ease-in-out infinite alternate;
+                                    letter-spacing: 0.5px;
+                                ">🔥 热评</span>
+                            </div>
+
+                            <!-- 日期和点赞 -->
+                            <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                                <span id="dateDisplay" style="
+                                    color: rgba(44, 62, 80, 0.7);
+                                    font-size: 11px;
+                                    font-weight: 500;
+                                    background: rgba(255,255,255,0.6);
+                                    padding: 3px 8px;
+                                    border-radius: 12px;
+                                    backdrop-filter: blur(10px);
+                                    border: 1px solid rgba(255,255,255,0.8);
+                                ">2024年03月15日</span>
+
+                                <div style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 4px;
+                                    background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.9) 100%);
+                                    padding: 5px 10px;
+                                    border-radius: 15px;
+                                    backdrop-filter: blur(10px);
+                                    box-shadow:
+                                        0 3px 10px rgba(231, 76, 60, 0.3),
+                                        inset 0 1px 0 rgba(255,255,255,0.3);
+                                    transition: all 0.3s ease;
+                                    cursor: pointer;
+                                " onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 5px 15px rgba(231, 76, 60, 0.4), inset 0 1px 0 rgba(255,255,255,0.4)';"
+                                   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 3px 10px rgba(231, 76, 60, 0.3), inset 0 1px 0 rgba(255,255,255,0.3)';">
+                                    <span style="font-size: 12px;">❤️</span>
+                                    <span id="likesDisplay" style="
+                                        color: white;
+                                        font-size: 11px;
+                                        font-weight: 700;
+                                        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                                        letter-spacing: 0.3px;
+                                    ">2847</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 中心评论内容 -->
+                    <div style="
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        text-align: center;
+                        padding: 30px 20px;
+                        position: relative;
+                        animation: fadeInScale 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+                    ">
+                        <!-- 装饰背景 -->
+                        <div style="
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            width: 200px;
+                            height: 200px;
+                            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                            border-radius: 50%;
+                            animation: pulse 4s ease-in-out infinite;
+                        "></div>
+
+                        <!-- 顶部引号 -->
+                        <div style="
+                            font-size: 40px;
+                            color: rgba(44, 62, 80, 0.2);
+                            line-height: 1;
+                            margin-bottom: 15px;
+                            font-family: 'Georgia', serif;
+                            font-weight: bold;
+                            animation: float 6s ease-in-out infinite;
+                        ">"</div>
+
+                        <!-- 评论文字 -->
+                        <div id="contentDisplay" style="
+                            color: #2c3e50;
+                            font-size: 19px;
+                            line-height: 1.9;
+                            font-weight: 700;
+                            text-shadow: 0 2px 4px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.1);
+                            letter-spacing: 0.8px;
+                            margin-bottom: 15px;
+                            padding: 0 15px;
+                            position: relative;
+                            z-index: 2;
+                            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 30%, #34495e 70%, #2c3e50 100%);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            animation: fadeInUp 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+                            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+                            text-align: center;
+                            max-width: 90%;
+                            margin-left: auto;
+                            margin-right: auto;
+                        ">
+                            凌晨三点的雨声，像极了我内心的独白
+                        </div>
+
+                        <!-- 底部引号 -->
+                        <div style="
+                            font-size: 40px;
+                            color: rgba(44, 62, 80, 0.2);
+                            line-height: 1;
+                            font-family: 'Georgia', serif;
+                            font-weight: bold;
+                            transform: rotate(180deg);
+                            animation: float 6s ease-in-out infinite 3s;
+                        ">"</div>
+                    </div>
+
+                    <!-- 底部歌曲信息 -->
+                    <div id="songSection" style="
+                        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+                        backdrop-filter: blur(20px);
+                        border-radius: 18px;
+                        padding: 16px;
+                        display: none;
+                        align-items: flex-start;
+                        gap: 12px;
+                        border: 1px solid rgba(255,255,255,0.8);
+                        box-shadow:
+                            0 8px 25px rgba(0,0,0,0.1),
+                            inset 0 1px 0 rgba(255,255,255,0.8);
+                        animation: slideInFromBottom 1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+                        position: relative;
+                        overflow: hidden;
+                        min-height: 65px;
+                    ">
+                        <!-- 歌曲封面 -->
+                        <div style="
+                            position: relative;
+                            overflow: hidden;
+                            border-radius: 12px;
+                            flex-shrink: 0;
+                            margin-top: 2px;
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        " onmouseover="this.style.transform='scale(1.05) rotate(2deg)'; this.style.zIndex='10';"
+                           onmouseout="this.style.transform='scale(1) rotate(0deg)'; this.style.zIndex='1';">
+
+                            <!-- 外层光环效果 -->
+                            <div style="
+                                position: absolute;
+                                top: -3px;
+                                left: -3px;
+                                right: -3px;
+                                bottom: -3px;
+                                border-radius: 15px;
+                                background: conic-gradient(from 0deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #667eea);
+                                animation: rotate 4s linear infinite;
+                                opacity: 0.6;
+                                z-index: -1;
+                            "></div>
+
+                            <!-- 内层白色边框 -->
+                            <div style="
+                                position: absolute;
+                                top: -1px;
+                                left: -1px;
+                                right: -1px;
+                                bottom: -1px;
+                                border-radius: 13px;
+                                background: white;
+                                z-index: 0;
+                            "></div>
+
+                            <!-- 黑胶唱片背景 -->
+                            <div style="
+                                position: absolute;
+                                top: 2px;
+                                left: 2px;
+                                width: 46px;
+                                height: 46px;
+                                border-radius: 50%;
+                                background:
+                                    radial-gradient(circle at center,
+                                        transparent 8px,
+                                        #1a1a1a 8px,
+                                        #1a1a1a 10px,
+                                        transparent 10px,
+                                        transparent 12px,
+                                        #1a1a1a 12px,
+                                        #1a1a1a 14px,
+                                        transparent 14px),
+                                    conic-gradient(from 0deg, #2a2a2a, #1a1a1a, #2a2a2a, #1a1a1a);
+                                z-index: 0;
+                                animation: vinylSpin 8s linear infinite;
+                                opacity: 0.3;
+                            "></div>
+
+                            <!-- 封面图片 -->
+                            <img id="cardSongCover" style="
+                                width: 50px;
+                                height: 50px;
+                                border-radius: 12px;
+                                object-fit: cover;
+                                position: relative;
+                                z-index: 1;
+                                box-shadow:
+                                    0 8px 25px rgba(0,0,0,0.2),
+                                    inset 0 1px 0 rgba(255,255,255,0.3);
+                                transition: all 0.3s ease;
+                            " src="" alt="歌曲封面"
+                               onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4)';"
+                               onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3)';">
+
+                            <!-- CD光盘效果 -->
+                            <div style="
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 50px;
+                                height: 50px;
+                                border-radius: 12px;
+                                background:
+                                    conic-gradient(from 0deg,
+                                        transparent,
+                                        rgba(255,255,255,0.1),
+                                        transparent,
+                                        rgba(255,255,255,0.1),
+                                        transparent);
+                                z-index: 2;
+                                animation: vinylSpin 6s linear infinite reverse;
+                                opacity: 0.5;
+                                pointer-events: none;
+                            "></div>
+
+                            <!-- 反光效果 -->
+                            <div style="
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 30%, transparent 70%, rgba(255,255,255,0.2) 100%);
+                                border-radius: 12px;
+                                pointer-events: none;
+                                z-index: 2;
+                            "></div>
+
+                            <!-- 播放图标覆盖层 -->
+                            <div style="
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                border-radius: 12px;
+                                opacity: 0.8;
+                                z-index: 5;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.opacity='1'; this.style.background='radial-gradient(circle, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.6) 100%)';"
+                               onmouseout="this.style.opacity='0.8'; this.style.background='radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%)';">
+
+                                <!-- 播放按钮 -->
+                                <div style="
+                                    width: 18px;
+                                    height: 18px;
+                                    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    box-shadow:
+                                        0 3px 10px rgba(0,0,0,0.3),
+                                        inset 0 1px 0 rgba(255,255,255,0.5);
+                                    transition: all 0.3s ease;
+                                    animation: pulse 2.5s ease-in-out infinite;
+                                " onmouseover="this.style.transform='scale(1.15)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6)';"
+                                   onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5)';">
+                                    <div style="
+                                        width: 0;
+                                        height: 0;
+                                        border-left: 5px solid #333;
+                                        border-top: 3px solid transparent;
+                                        border-bottom: 3px solid transparent;
+                                        margin-left: 1px;
+                                    "></div>
+                                </div>
+                            </div>
+
+                            <!-- 音符装饰 -->
+                            <div style="
+                                position: absolute;
+                                top: -8px;
+                                right: -8px;
+                                width: 16px;
+                                height: 16px;
+                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 8px;
+                                color: white;
+                                box-shadow: 0 2px 8px rgba(240, 147, 251, 0.4);
+                                animation: musicNote 3s ease-in-out infinite;
+                                z-index: 4;
+                            ">♪</div>
+                        </div>
+
+                        <!-- 歌曲信息 -->
+                        <div style="flex: 1; min-width: 0; max-width: calc(100% - 120px);">
+                            <div id="cardSongName" style="
+                                color: #2c3e50;
+                                font-size: 13px;
+                                font-weight: 700;
+                                margin-bottom: 4px;
+                                text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+                                line-height: 1.2;
+                                word-wrap: break-word;
+                                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                                -webkit-background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                background-clip: text;
+                                height: 32px;
+                                display: flex;
+                                align-items: center;
+                                overflow: hidden;
+                            "></div>
+                            <div id="cardSongArtist" style="
+                                color: rgba(44, 62, 80, 0.7);
+                                font-size: 10px;
+                                font-weight: 500;
+                                line-height: 1.2;
+                                word-wrap: break-word;
+                                height: 24px;
+                                display: flex;
+                                align-items: center;
+                                overflow: hidden;
+                            "></div>
+                        </div>
+
+                        <!-- 歌曲详细信息 -->
+                        <div style="
+                            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+                            border: 1px solid rgba(102, 126, 234, 0.2);
+                            border-radius: 12px;
+                            padding: 8px 12px;
+                            flex-shrink: 0;
+                            align-self: flex-start;
+                            margin-top: 2px;
+                            height: fit-content;
+                            backdrop-filter: blur(10px);
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.background='linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)'; this.style.transform='scale(1.02)';"
+                           onmouseout="this.style.background='linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)'; this.style.transform='scale(1)';">
+
+                            <!-- 专辑信息 -->
+                            <div style="
+                                color: #667eea;
+                                font-size: 8px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin-bottom: 2px;
+                                opacity: 0.8;
+                            ">ALBUM</div>
+
+                            <!-- 专辑名称 -->
+                            <div id="cardAlbumName" style="
+                                color: #2c3e50;
+                                font-size: 9px;
+                                font-weight: 700;
+                                line-height: 1.2;
+                                max-width: 80px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                margin-bottom: 3px;
+                            ">未知专辑</div>
+
+                            <!-- 音乐类型标签 -->
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                gap: 3px;
+                            ">
+                                <div style="
+                                    width: 6px;
+                                    height: 6px;
+                                    border-radius: 50%;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    animation: pulse 2s ease-in-out infinite;
+                                "></div>
+                                <span style="
+                                    color: #7f8c8d;
+                                    font-size: 7px;
+                                    font-weight: 500;
+                                    letter-spacing: 0.3px;
+                                ">MUSIC</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                    <div class="comment-footer">
+                        <span class="reply-count">44条回复 ></span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="export-btn" onclick="exportImage()">
+                        长按保存图片
+                    </button>
+                    <button class="export-btn" onclick="generateVideo()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        🎬 生成视频
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量存储选中的歌曲信息
+        let selectedSongData = null;
+
+        // 全局变量存储选中的评论和歌曲信息（用于预览）
+        let selectedComment = null;
+        let selectedSong = null;
+
+        // 网易云音乐API配置
+        const NETEASE_API_BASE = 'https://netease-cloud-music-api-omega-seven.vercel.app';
+
+        // 备用API地址（如果主API不可用）
+        const BACKUP_API_BASES = [
+            'https://netease-cloud-music-api-psi-six.vercel.app',
+            'https://music-api-sigma-five.vercel.app',
+            'https://netease-music-api-ten.vercel.app',
+            'https://netease-music-api.vercel.app',
+            'https://music-api.heheda.top',
+            'https://netease-cloud-music-api-rust-tau.vercel.app',
+            'https://music.eleuu.com'
+        ];
+
+        // 当前使用的API地址
+        let currentApiBase = NETEASE_API_BASE;
+
+        // 处理图片跨域问题的代理函数
+        function getProxiedImageUrl(originalUrl) {
+            if (!originalUrl) return null;
+            try {
+                // 使用图片代理服务解决跨域问题
+                return `https://images.weserv.nl/?url=${encodeURIComponent(originalUrl)}&w=200&h=200&fit=cover&output=jpg`;
+            } catch (error) {
+                console.warn('图片代理失败:', error);
+                return null;
+            }
+        }
+
+        // 根据网易云音乐的picId生成图片URL
+        function getNeteaseImageUrl(picId, size = 200) {
+            if (!picId) return null;
+            // 网易云音乐图片URL格式
+            const baseUrl = `https://p1.music.126.net/${picId}/${picId}.jpg`;
+            return getProxiedImageUrl(baseUrl);
+        }
+
+        // 生成高质量专辑封面
+        function generateFallbackCover(songName, artistName) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+
+            // 根据歌曲名和歌手名生成独特的颜色
+            const hash = (songName + artistName).split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+
+            // emo风格的配色方案
+            const colorSchemes = [
+                { bg: ['#6c7b7f', '#4a5568'], accent: '#a0aec0', text: '#ffffff' },
+                { bg: ['#7d6d75', '#553c4e'], accent: '#b794a8', text: '#ffffff' },
+                { bg: ['#7a7a7a', '#4a4a4a'], accent: '#a8a8a8', text: '#ffffff' },
+                { bg: ['#8a8a8a', '#5a5a5a'], accent: '#b8b8b8', text: '#ffffff' },
+                { bg: ['#6e6e6e', '#3e3e3e'], accent: '#9e9e9e', text: '#ffffff' },
+                { bg: ['#8e9aaf', '#5d6d7e'], accent: '#aeb6cf', text: '#ffffff' },
+                { bg: ['#9d8189', '#7d5a6b'], accent: '#c4a1aa', text: '#ffffff' }
+            ];
+
+            const scheme = colorSchemes[Math.abs(hash) % colorSchemes.length];
+
+            // 创建渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, 200, 200);
+            gradient.addColorStop(0, scheme.bg[0]);
+            gradient.addColorStop(1, scheme.bg[1]);
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 200, 200);
+
+            // 添加装饰性几何图形
+            ctx.fillStyle = scheme.accent + '20';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(100, 100, 30 + i * 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 添加音乐符号
+            ctx.fillStyle = scheme.accent + '60';
+            ctx.font = 'bold 40px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const musicSymbols = ['♪', '♫', '♬', '♭', '♯', '𝄞'];
+            const symbol = musicSymbols[Math.abs(hash) % musicSymbols.length];
+            ctx.fillText(symbol, 100, 70);
+
+            // 添加歌曲名首字母
+            ctx.fillStyle = scheme.text;
+            ctx.font = 'bold 36px sans-serif';
+            const firstChar = songName.charAt(0).toUpperCase();
+            ctx.fillText(firstChar, 100, 120);
+
+            // 添加歌手名首字母（小字）
+            ctx.fillStyle = scheme.accent;
+            ctx.font = 'bold 16px sans-serif';
+            const artistChar = artistName.charAt(0).toUpperCase();
+            ctx.fillText(artistChar, 100, 150);
+
+            // 添加边框
+            ctx.strokeStyle = scheme.accent + '40';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(5, 5, 190, 190);
+
+            return canvas.toDataURL();
+        }
+
+        // 尝试不同的API地址
+        async function tryApiRequest(endpoint, params = {}) {
+            const apis = [currentApiBase, ...BACKUP_API_BASES];
+
+            for (const apiBase of apis) {
+                try {
+                    const url = new URL(endpoint, apiBase);
+                    Object.keys(params).forEach(key => {
+                        if (params[key] !== undefined && params[key] !== null) {
+                            url.searchParams.append(key, params[key]);
+                        }
+                    });
+
+                    console.log('尝试API请求:', url.toString());
+
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                        mode: 'cors'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('API请求成功:', apiBase);
+                        currentApiBase = apiBase; // 更新当前可用的API
+                        return data;
+                    } else {
+                        console.warn(`API ${apiBase} 返回错误状态:`, response.status, response.statusText);
+                    }
+                } catch (error) {
+                    console.warn(`API ${apiBase} 请求失败:`, error.message);
+
+                    // 如果是CORS错误，给出特别提示
+                    if (error.message.includes('CORS') || error.message.includes('fetch')) {
+                        console.warn('CORS错误 - 建议使用本地服务器运行');
+                    }
+                    continue;
+                }
+            }
+
+            // 显示用户友好的错误信息和CORS警告
+            const errorMsg = '所有API都不可用。请尝试：\n1. 运行本地服务器: python server.py\n2. 然后访问: http://localhost:8000';
+            console.error(errorMsg);
+            showCorsWarning();
+            throw new Error(errorMsg);
+        }
+
+        // 显示CORS警告
+        function showCorsWarning() {
+            const warning = document.getElementById('corsWarning');
+            if (warning) {
+                warning.style.display = 'block';
+            }
+        }
+
+        // 隐藏CORS警告
+        function hideCorsWarning() {
+            const warning = document.getElementById('corsWarning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+        }
+
+        // 搜索歌曲功能
+        async function searchSong() {
+            const query = document.getElementById('songSearch').value.trim();
+            if (!query) {
+                alert('请输入搜索关键词');
+                return;
+            }
+
+            console.log('开始搜索:', query);
+
+            // 更新按钮状态
+            const searchBtn = document.getElementById('searchBtn');
+            const originalText = searchBtn.textContent;
+            searchBtn.textContent = '搜索中...';
+            searchBtn.disabled = true;
+
+            // 显示加载状态
+            const resultsContainer = document.getElementById('songResults');
+            resultsContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #6c757d;">🎵 正在搜索歌曲，请稍候...</div>';
+            resultsContainer.style.display = 'block';
+
+            try {
+                // 调用网易云音乐搜索API
+                const data = await tryApiRequest('/search', {
+                    keywords: query,
+                    type: 1, // 1表示搜索歌曲
+                    limit: 10
+                });
+
+                if (data && data.result && data.result.songs && data.result.songs.length > 0) {
+                    const songs = data.result.songs.map(song => {
+                        // 处理歌手信息
+                        const artists = song.artists || [];
+                        const artistNames = artists.map(artist => artist.name).join('/');
+
+                        // 生成高质量封面
+                        const firstArtist = artists[0] ? artists[0].name : '未知歌手';
+                        const generatedCover = generateFallbackCover(song.name, firstArtist);
+
+                        return {
+                            id: song.id,
+                            name: song.name,
+                            artist: artistNames,
+                            album: song.album ? song.album.name : '未知专辑',
+                            cover: generatedCover, // 直接使用生成的高质量封面
+                            fallbackCover: generatedCover,
+                            duration: song.duration,
+                            picId: song.album ? song.album.picId : null
+                        };
+                    });
+
+                    console.log('搜索到歌曲:', songs.length, '首');
+                    console.log('歌曲数据:', songs);
+                    displaySearchResults(songs);
+                } else {
+                    console.log('API返回数据:', data);
+                    throw new Error('搜索结果为空');
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                resultsContainer.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #6c757d; background: white; border-radius: 8px;">
+                        <div style="font-size: 16px; margin-bottom: 12px;">😔 搜索失败</div>
+                        <div style="font-size: 12px; color: #adb5bd; margin-bottom: 16px;">
+                            可能的原因：网络连接问题或API服务暂时不可用<br>
+                            <small>错误详情: ${error.message}</small>
+                        </div>
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button onclick="searchSong()" style="padding: 8px 16px; font-size: 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">重试搜索</button>
+                            <button onclick="testSearch()" style="padding: 8px 16px; font-size: 12px; background: #868e96; color: white; border: none; border-radius: 4px; cursor: pointer;">测试搜索</button>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                // 恢复按钮状态
+                searchBtn.textContent = originalText;
+                searchBtn.disabled = false;
+            }
+        }
+
+        // 测试搜索功能
+        async function testSearch() {
+            document.getElementById('songSearch').value = '孤独患者';
+            await searchSong();
+        }
+
+        // 测试页面功能
+        function testPage() {
+            console.log('测试页面功能');
+            console.log('songResults 元素:', document.getElementById('songResults'));
+            console.log('当前搜索结果:', window.currentSearchResults);
+            console.log('选中的歌曲:', selectedSongData);
+
+            // 测试选择第一首歌
+            if (window.currentSearchResults && window.currentSearchResults.length > 0) {
+                console.log('测试选择第一首歌');
+                selectSongFromResults(0);
+            } else {
+                console.log('没有搜索结果可供测试');
+            }
+        }
+
+        // 处理图片加载成功
+        function handleImageLoad(img) {
+            const originalUrl = img.getAttribute('data-original');
+            if (originalUrl && img.src !== originalUrl) {
+                // 尝试多种方式加载网易云图片
+                tryLoadNeteaseImage(img, originalUrl);
+            }
+        }
+
+        // 尝试加载网易云音乐图片
+        function tryLoadNeteaseImage(img, originalUrl) {
+            if (!originalUrl) return;
+
+            // 提取picId
+            const picIdMatch = originalUrl.match(/\/(\d+)\/\d+\.jpg/);
+            if (!picIdMatch) return;
+
+            const picId = picIdMatch[1];
+            console.log('尝试加载图片，picId:', picId);
+
+            // 尝试不同的方法
+            const methods = [
+                // 方法1: 直接使用网易云URL
+                `https://p1.music.126.net/${picId}/${picId}.jpg?param=200y200`,
+                `https://p2.music.126.net/${picId}/${picId}.jpg?param=200y200`,
+                // 方法2: 使用不同的代理服务
+                `https://images.weserv.nl/?url=p1.music.126.net/${picId}/${picId}.jpg&w=200&h=200`,
+                `https://cors-anywhere.herokuapp.com/https://p1.music.126.net/${picId}/${picId}.jpg`,
+                // 方法3: 使用其他CDN
+                `https://music.163.com/api/img/blur/${picId}`
+            ];
+
+            let currentIndex = 0;
+
+            function tryNext() {
+                if (currentIndex >= methods.length) {
+                    console.log('所有方法都失败，使用fallback');
+                    return;
+                }
+
+                const testImg = new Image();
+                testImg.crossOrigin = 'anonymous';
+                testImg.onload = function() {
+                    img.src = methods[currentIndex];
+                    console.log('图片加载成功，方法:', currentIndex + 1, methods[currentIndex]);
+                };
+                testImg.onerror = function() {
+                    console.log('方法', currentIndex + 1, '失败:', methods[currentIndex]);
+                    currentIndex++;
+                    tryNext();
+                };
+                testImg.src = methods[currentIndex];
+            }
+
+            tryNext();
+        }
+
+        // 处理图片加载失败
+        function handleImageError(img) {
+            const fallbackUrl = img.getAttribute('data-fallback');
+            if (fallbackUrl && img.src !== fallbackUrl) {
+                img.src = fallbackUrl;
+                console.log('图片加载失败，切换到fallback:', fallbackUrl);
+            }
+        }
+
+        // 加载真实封面
+        function loadRealCovers() {
+            if (!window.currentSearchResults) return;
+
+            const images = document.querySelectorAll('.song-cover[data-original]');
+            images.forEach((img, index) => {
+                const song = window.currentSearchResults[index];
+                if (song && song.picId) {
+                    // 尝试加载网易云音乐封面
+                    loadNeteaseImage(img, song.picId);
+                }
+            });
+        }
+
+        // 加载网易云音乐图片
+        function loadNeteaseImage(img, picId) {
+            if (!picId) return;
+
+            console.log('尝试加载封面，picId:', picId);
+
+            // 网易云音乐图片URL（添加参数来指定尺寸）
+            const imageUrl = `https://p1.music.126.net/${picId}/${picId}.jpg?param=200y200`;
+
+            // 创建一个新的Image对象来测试加载
+            const testImg = new Image();
+            testImg.crossOrigin = 'anonymous';
+
+            testImg.onload = function() {
+                // 加载成功，更新显示的图片
+                img.src = imageUrl;
+                console.log('封面加载成功:', imageUrl);
+            };
+
+            testImg.onerror = function() {
+                console.log('封面加载失败，保持使用fallback');
+                // 可以尝试其他方法或保持使用fallback
+            };
+
+            testImg.src = imageUrl;
+        }
+
+        // 获取歌曲详细信息（包括高质量封面）
+        async function getSongDetail(songId) {
+            try {
+                console.log('🎵 开始获取歌曲详情，ID:', songId);
+
+                const data = await tryApiRequest('/song/detail', {
+                    ids: songId
+                });
+
+                console.log('🎵 歌曲详情API响应:', data);
+
+                if (data && data.songs && data.songs.length > 0) {
+                    const song = data.songs[0];
+                    const album = song.al || song.album;
+                    const artists = song.ar || song.artists || [];
+
+                    // 获取高质量封面
+                    let coverUrl = null;
+                    if (album && album.picUrl) {
+                        // 使用高质量封面URL
+                        coverUrl = album.picUrl.replace(/\?param=\d+y\d+/, '?param=300y300');
+                        // 使用代理服务解决跨域问题
+                        coverUrl = getProxiedImageUrl(coverUrl);
+                    }
+
+                    const songDetail = {
+                        id: song.id,
+                        name: song.name,
+                        artist: artists.map(artist => artist.name).join('/'),
+                        album: album ? album.name : '未知专辑',
+                        cover: coverUrl,
+                        fallbackCover: generateFallbackCover(song.name, artists[0]?.name || '未知歌手'),
+                        duration: song.dt || song.duration,
+                        picId: album ? album.pic_str || album.pic : null,
+                        picUrl: album ? album.picUrl : null
+                    };
+
+                    console.log('获取到歌曲详情:', songDetail);
+                    return songDetail;
+                } else {
+                    throw new Error('歌曲详情为空');
+                }
+
+            } catch (error) {
+                console.error('获取歌曲详情失败:', error);
+                return null;
+            }
+        }
+
+        // 获取热门评论（使用 /comment/hot 接口）
+        async function getHotComments(songId, limit = 20, offset = 0) {
+            try {
+                console.log('🔥 开始获取热门评论，ID:', songId, 'limit:', limit, 'offset:', offset);
+
+                const data = await tryApiRequest('/comment/hot', {
+                    id: songId,
+                    type: 0, // 0表示歌曲
+                    limit: limit,
+                    offset: offset
+                });
+
+                console.log('🔥 热门评论API响应:', data);
+
+                let hotComments = [];
+
+                // 检查数据结构
+                console.log('检查API数据结构:');
+                console.log('- data存在:', !!data);
+                console.log('- data.hotComments存在:', !!(data && data.hotComments));
+                console.log('- data.hotComments长度:', data && data.hotComments ? data.hotComments.length : 'N/A');
+
+                if (data && data.hotComments && data.hotComments.length > 0) {
+                    console.log('开始处理热门评论数据...');
+                    console.log('原始评论数据示例:', data.hotComments[0]);
+
+                    hotComments = data.hotComments.map((comment, index) => {
+                        const processedComment = {
+                            content: comment.content,
+                            username: comment.user ? comment.user.nickname : '匿名用户',
+                            userId: comment.user ? comment.user.userId : 0,
+                            avatar: comment.user ? comment.user.avatarUrl : '',
+                            likedCount: comment.likedCount || 0,
+                            time: comment.time,
+                            timeStr: comment.timeStr || formatTime(comment.time),
+                            isHot: true // 标记为热门评论
+                        };
+
+                        if (index === 0) {
+                            console.log('处理后的评论示例:', processedComment);
+                        }
+
+                        return processedComment;
+                    });
+
+                    console.log('评论处理完成，数量:', hotComments.length);
+                } else {
+                    console.log('没有找到热门评论数据');
+                }
+
+                // 按点赞数排序
+                hotComments.sort((a, b) => b.likedCount - a.likedCount);
+
+                console.log('获取到热门评论数量:', hotComments.length);
+                console.log('热门评论数据示例:', hotComments.slice(0, 2));
+                return hotComments;
+
+            } catch (error) {
+                console.error('获取热门评论失败:', error);
+                return [];
+            }
+        }
+
+        // 获取歌曲评论（包括热门评论和普通评论）
+        async function getSongComments(songId, limit = 50, offset = 0) {
+            try {
+                console.log('💬 开始获取歌曲评论，ID:', songId, 'limit:', limit, 'offset:', offset);
+
+                const data = await tryApiRequest('/comment/music', {
+                    id: songId,
+                    limit: limit,
+                    offset: offset
+                });
+
+                console.log('💬 歌曲评论API响应:', data);
+
+                console.log('评论API返回数据:', data);
+
+                let allComments = [];
+
+                // 获取热门评论
+                if (data && data.hotComments && data.hotComments.length > 0) {
+                    const hotComments = data.hotComments.map(comment => ({
+                        content: comment.content,
+                        username: comment.user.nickname,
+                        userId: comment.user.userId,
+                        avatar: comment.user.avatarUrl,
+                        likedCount: comment.likedCount,
+                        time: comment.time,
+                        timeStr: comment.timeStr || formatTime(comment.time),
+                        isHot: true // 标记为热门评论
+                    }));
+                    allComments = allComments.concat(hotComments);
+                }
+
+                // 获取普通评论
+                if (data && data.comments && data.comments.length > 0) {
+                    const normalComments = data.comments.map(comment => ({
+                        content: comment.content,
+                        username: comment.user.nickname,
+                        userId: comment.user.userId,
+                        avatar: comment.user.avatarUrl,
+                        likedCount: comment.likedCount,
+                        time: comment.time,
+                        timeStr: comment.timeStr || formatTime(comment.time),
+                        isHot: false // 标记为普通评论
+                    }));
+                    allComments = allComments.concat(normalComments);
+                }
+
+                // 按点赞数排序，热门评论优先
+                allComments.sort((a, b) => {
+                    if (a.isHot && !b.isHot) return -1;
+                    if (!a.isHot && b.isHot) return 1;
+                    return b.likedCount - a.likedCount;
+                });
+
+                console.log('获取到评论数量:', allComments.length);
+                return allComments;
+
+            } catch (error) {
+                console.error('获取评论失败:', error);
+                return [];
+            }
+        }
+
+        // 格式化时间
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}年${month}月${day}日`;
+        }
+
+        // 显示搜索结果
+        function displaySearchResults(results) {
+            console.log('显示搜索结果:', results);
+            const resultsContainer = document.getElementById('songResults');
+
+            if (!results || results.length === 0) {
+                resultsContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #6c757d;">未找到相关歌曲</div>';
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            const songsHtml = results.map((song, index) => `
+                <div class="song-item" onclick="selectSongFromResults(${index})" style="
+                    display: flex;
+                    align-items: center;
+                    padding: 12px;
+                    border-bottom: 1px solid #f1f3f4;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: white;
+                " onmouseover="this.style.backgroundColor='#f8f9fa'; this.style.transform='translateX(4px)'"
+                   onmouseout="this.style.backgroundColor='white'; this.style.transform='translateX(0)'">
+                    <img class="song-cover"
+                         src="${song.cover}"
+                         alt="${song.name}"
+                         loading="lazy"
+                         style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #e9ecef;">
+                    <div class="song-info" style="flex: 1; margin-left: 12px; min-width: 0;">
+                        <div class="song-name" style="font-size: 15px; font-weight: 500; color: #495057; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${song.name}</div>
+                        <div class="song-artist" style="font-size: 13px; color: #6c757d; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${song.artist}</div>
+                        <div class="song-album" style="font-size: 11px; color: #adb5bd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${song.album}</div>
+                    </div>
+                    <div style="margin-left: 12px; padding: 8px; flex-shrink: 0;">
+                        <div style="font-size: 12px; color: #6c757d; text-align: center;">点击选择</div>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsContainer.innerHTML = `
+                <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div style="padding: 12px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <div style="font-size: 14px; color: #495057; font-weight: 500;">🎵 找到 ${results.length} 首歌曲</div>
+                        <div style="font-size: 12px; color: #6c757d; margin-top: 2px;">点击歌曲进行选择</div>
+                    </div>
+                    ${songsHtml}
+                </div>
+            `;
+
+            // 存储搜索结果供后续使用
+            window.currentSearchResults = results;
+            resultsContainer.style.display = 'block';
+
+            console.log('搜索结果已显示，使用生成的高质量封面');
+        }
+
+        // 从搜索结果中选择歌曲
+        async function selectSongFromResults(index) {
+            console.log('选择歌曲，索引:', index);
+
+            if (!window.currentSearchResults || !window.currentSearchResults[index]) {
+                console.error('无效的歌曲索引或搜索结果');
+                return;
+            }
+
+            const song = window.currentSearchResults[index];
+            console.log('选中歌曲:', song);
+
+            // 显示加载状态
+            const selectedSong = document.getElementById('selectedSong');
+            if (selectedSong) {
+                selectedSong.innerHTML = `
+                    <div style="padding: 16px; text-align: center; color: #6c757d;">
+                        🎵 正在获取歌曲详情和高质量封面...
+                    </div>
+                `;
+                selectedSong.style.display = 'block';
+            }
+
+            try {
+                // 获取歌曲详细信息和高质量封面
+                const songDetail = await getSongDetail(song.id);
+
+                if (songDetail) {
+                    // 使用详细信息更新歌曲数据
+                    selectedSongData = {
+                        ...song,
+                        ...songDetail,
+                        // 如果获取到了高质量封面，使用它，否则保持原有的
+                        cover: songDetail.cover || song.cover || song.fallbackCover
+                    };
+                } else {
+                    // 如果获取详情失败，使用原始数据
+                    selectedSongData = song;
+                }
+
+                console.log('最终选中歌曲数据:', selectedSongData);
+
+                // 更新选中歌曲显示
+                const selectedCover = document.getElementById('selectedSongCover');
+                if (selectedCover) {
+                    selectedCover.src = selectedSongData.cover || selectedSongData.fallbackCover;
+                    selectedCover.onerror = () => { selectedCover.src = selectedSongData.fallbackCover; };
+                }
+
+                const selectedSongName = document.getElementById('selectedSongName');
+                const selectedSongArtist = document.getElementById('selectedSongArtist');
+
+                if (selectedSongName) selectedSongName.textContent = selectedSongData.name;
+                if (selectedSongArtist) selectedSongArtist.textContent = selectedSongData.artist;
+
+                // 更新评论卡片中的歌曲信息
+                const cardCover = document.getElementById('cardSongCover');
+                if (cardCover) {
+                    cardCover.src = selectedSongData.cover || selectedSongData.fallbackCover;
+                    cardCover.onerror = () => { cardCover.src = selectedSongData.fallbackCover; };
+                }
+
+                const cardSongName = document.getElementById('cardSongName');
+                const cardSongArtist = document.getElementById('cardSongArtist');
+                const cardAlbumName = document.getElementById('cardAlbumName');
+                const songSection = document.getElementById('songSection');
+
+                if (cardSongName) {
+                    cardSongName.textContent = selectedSongData.name;
+                    // 自动调整歌名字体大小
+                    setTimeout(() => autoResizeText(cardSongName, 13), 50);
+                }
+                if (cardSongArtist) {
+                    cardSongArtist.textContent = selectedSongData.artist;
+                    // 自动调整歌手字体大小
+                    setTimeout(() => autoResizeText(cardSongArtist, 10), 50);
+                }
+                if (cardAlbumName) {
+                    cardAlbumName.textContent = selectedSongData.album || '未知专辑';
+                }
+                if (songSection) songSection.style.display = 'flex';
+
+                // 显示获取评论的界面
+                console.log('调用 showGetCommentsInterface');
+                showGetCommentsInterface(selectedSongData);
+
+            } catch (error) {
+                console.error('获取歌曲详情时出错:', error);
+                // 出错时使用原始数据
+                selectedSongData = song;
+
+                // 更新显示
+                updateSongDisplay(song);
+                showGetCommentsInterface(song);
+            }
+        }
+
+        // 更新歌曲显示的辅助函数
+        function updateSongDisplay(song) {
+            const selectedCover = document.getElementById('selectedSongCover');
+            if (selectedCover) {
+                selectedCover.src = song.cover || song.fallbackCover;
+                selectedCover.onerror = () => { selectedCover.src = song.fallbackCover; };
+            }
+
+            const selectedSongName = document.getElementById('selectedSongName');
+            const selectedSongArtist = document.getElementById('selectedSongArtist');
+            const selectedSong = document.getElementById('selectedSong');
+
+            if (selectedSongName) selectedSongName.textContent = song.name;
+            if (selectedSongArtist) selectedSongArtist.textContent = song.artist;
+            if (selectedSong) selectedSong.style.display = 'block';
+
+            const cardCover = document.getElementById('cardSongCover');
+            if (cardCover) {
+                cardCover.src = song.cover || song.fallbackCover;
+                cardCover.onerror = () => { cardCover.src = song.fallbackCover; };
+            }
+
+            const cardSongName = document.getElementById('cardSongName');
+            const cardSongArtist = document.getElementById('cardSongArtist');
+            const cardAlbumName = document.getElementById('cardAlbumName');
+            const songSection = document.getElementById('songSection');
+
+            if (cardSongName) {
+                cardSongName.textContent = song.name;
+                setTimeout(() => autoResizeText(cardSongName, 13), 50);
+            }
+            if (cardSongArtist) {
+                cardSongArtist.textContent = song.artist;
+                setTimeout(() => autoResizeText(cardSongArtist, 10), 50);
+            }
+            if (cardAlbumName) {
+                cardAlbumName.textContent = song.album || '未知专辑';
+            }
+            if (songSection) songSection.style.display = 'flex';
+        }
+
+        // 显示获取评论的界面
+        function showGetCommentsInterface(song) {
+            console.log('显示获取评论界面，歌曲:', song);
+
+            const resultsContainer = document.getElementById('songResults');
+            if (!resultsContainer) {
+                console.error('找不到 songResults 容器');
+                return;
+            }
+
+            console.log('设置评论界面HTML');
+            const htmlContent = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px;">
+                        <img src="${song.cover || song.fallbackCover}"
+                             style="width: 50px; height: 50px; border-radius: 8px;"
+                             onerror="this.src='${song.fallbackCover}'">
+                        <div style="text-align: left;">
+                            <div style="font-size: 16px; font-weight: 500; color: #495057;">${song.name}</div>
+                            <div style="font-size: 14px; color: #6c757d;">${song.artist}</div>
+                            <div style="font-size: 12px; color: #adb5bd;">${song.album}</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #495057; margin-bottom: 8px;">✅ 歌曲已选择</div>
+                        <div style="font-size: 12px; color: #6c757d;">现在可以获取这首歌的热门评论</div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #495057; margin-bottom: 8px;">选择评论模式：</div>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="loadHotCommentsForSelectedSong()"
+                                    style="padding: 10px 20px; font-size: 14px; background: #ff6b6b; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                🔥 选择热门评论
+                            </button>
+                            <button onclick="loadAllCommentsForSelectedSong()"
+                                    style="padding: 10px 20px; font-size: 14px; background: #868e96; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                💬 选择所有评论
+                            </button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #495057; margin-bottom: 8px;">或者：</div>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="showCustomCommentMode()"
+                                    style="padding: 10px 20px; font-size: 14px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                ✏️ 自定义评论
+                            </button>
+                            <button onclick="displaySearchResults(window.currentSearchResults)"
+                                    style="padding: 10px 20px; font-size: 14px; background: #adb5bd; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                重新选择歌曲
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            console.log('HTML内容长度:', htmlContent.length);
+            console.log('HTML内容预览:', htmlContent.substring(0, 200) + '...');
+
+            resultsContainer.innerHTML = htmlContent;
+            resultsContainer.style.display = 'block';
+
+            console.log('评论界面HTML已设置，容器显示状态:', resultsContainer.style.display);
+            console.log('容器内容:', resultsContainer.innerHTML.substring(0, 200) + '...');
+        }
+
+        // 显示自定义评论模式
+        function showCustomCommentMode() {
+            if (!selectedSongData) return;
+
+            const resultsContainer = document.getElementById('songResults');
+            resultsContainer.innerHTML = `
+                <div style="padding: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px;">
+                        <img src="${selectedSongData.cover || selectedSongData.fallbackCover}"
+                             style="width: 50px; height: 50px; border-radius: 8px;"
+                             onerror="this.src='${selectedSongData.fallbackCover}'">
+                        <div style="text-align: left;">
+                            <div style="font-size: 16px; font-weight: 500; color: #495057;">${selectedSongData.name}</div>
+                            <div style="font-size: 14px; color: #6c757d;">${selectedSongData.artist}</div>
+                            <div style="font-size: 12px; color: #adb5bd;">${selectedSongData.album}</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 16px; color: #495057; margin-bottom: 8px;">✏️ 自定义评论模式</div>
+                        <div style="font-size: 12px; color: #6c757d;">直接填写表单，创建你自己的评论</div>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                        <div style="font-size: 14px; color: #495057; margin-bottom: 12px;">快速填充示例：</div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="fillCustomComment('这首歌真的太好听了！每次听都有不同的感受 🎵', '${selectedSongData.name}', '${selectedSongData.artist}')"
+                                    style="padding: 6px 12px; font-size: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                赞美评论
+                            </button>
+                            <button onclick="fillCustomComment('单曲循环中，这旋律太上头了！', '${selectedSongData.name}', '${selectedSongData.artist}')"
+                                    style="padding: 6px 12px; font-size: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                循环评论
+                            </button>
+                            <button onclick="fillCustomComment('听这首歌想起了很多回忆...', '${selectedSongData.name}', '${selectedSongData.artist}')"
+                                    style="padding: 6px 12px; font-size: 12px; background: #ffc107; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                回忆评论
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="fillCustomComment('', '${selectedSongData.name}', '${selectedSongData.artist}')"
+                                style="padding: 10px 20px; font-size: 14px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            📝 开始自定义
+                        </button>
+                        <button onclick="showGetCommentsInterface(selectedSongData)"
+                                style="padding: 10px 20px; font-size: 14px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                            返回选择模式
+                        </button>
+                    </div>
+                </div>
+            `;
+            resultsContainer.style.display = 'block';
+        }
+
+        // 填充自定义评论到表单
+        function fillCustomComment(content, songName, artist) {
+            // 填充歌曲信息
+            document.getElementById('songName').value = songName;
+            document.getElementById('artistName').value = artist;
+
+            // 填充评论内容
+            document.getElementById('content').value = content;
+
+            // 设置一个合理的点赞数
+            const randomLikes = Math.floor(Math.random() * 10000) + 100;
+            document.getElementById('likes').value = randomLikes;
+
+            // 更新预览
+            updatePreview();
+
+            // 隐藏搜索结果
+            document.getElementById('songResults').style.display = 'none';
+            document.getElementById('songSearch').value = '';
+
+            // 显示成功提示
+            if (content) {
+                alert('✅ 已填充示例评论！你可以在表单中继续编辑。');
+            } else {
+                alert('✅ 歌曲信息已填充！请在表单中输入你的评论内容。');
+            }
+        }
+
+        // 为选中的歌曲加载所有评论
+        async function loadAllCommentsForSelectedSong() {
+            if (!selectedSongData) return;
+
+            // 显示加载状态
+            const resultsContainer = document.getElementById('songResults');
+            resultsContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="font-size: 16px; color: #6c757d; margin-bottom: 12px;">💬 正在获取所有评论...</div>
+                    <div style="font-size: 12px; color: #adb5bd;">请稍候，正在获取音乐数据</div>
+                </div>
+            `;
+
+            try {
+                const comments = await getSongComments(selectedSongData.id, 50);
+
+                if (comments.length > 0) {
+                    displaySongComments(selectedSongData, comments, 'all');
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 16px; color: #6c757d; margin-bottom: 12px;">😔 该歌曲暂无评论</div>
+                            <div style="font-size: 12px; color: #adb5bd; margin-bottom: 16px;">可能是新歌或评论较少</div>
+                            <button onclick="showGetCommentsInterface(selectedSongData)"
+                                    style="padding: 8px 16px; font-size: 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                返回
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('获取评论失败:', error);
+                showCommentError('all');
+            }
+        }
+
+        // 为选中的歌曲加载热门评论
+        async function loadHotCommentsForSelectedSong() {
+            if (!selectedSongData) return;
+
+            // 显示加载状态
+            const resultsContainer = document.getElementById('songResults');
+            resultsContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="font-size: 16px; color: #6c757d; margin-bottom: 12px;">🔥 正在获取热门评论...</div>
+                    <div style="font-size: 12px; color: #adb5bd;">请稍候，正在获取音乐数据</div>
+                </div>
+            `;
+
+            try {
+                const comments = await getHotComments(selectedSongData.id, 30);
+                console.log('loadHotCommentsForSelectedSong 获取到评论数量:', comments.length);
+
+                if (comments.length > 0) {
+                    console.log('准备调用 displaySongComments，歌曲:', selectedSongData.name, '评论数量:', comments.length);
+                    displaySongComments(selectedSongData, comments, 'hot');
+                    console.log('displaySongComments 调用完成');
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div style="padding: 20px; text-align: center;">
+                            <div style="font-size: 16px; color: #6c757d; margin-bottom: 12px;">😔 该歌曲暂无热门评论</div>
+                            <div style="font-size: 12px; color: #adb5bd; margin-bottom: 16px;">可能是新歌或评论较少</div>
+                            <button onclick="showGetCommentsInterface(selectedSongData)"
+                                    style="padding: 8px 16px; font-size: 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                返回
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('获取热门评论失败:', error);
+                showCommentError('hot');
+            }
+        }
+
+        // 显示评论获取错误
+        function showCommentError(type) {
+            const resultsContainer = document.getElementById('songResults');
+            const typeText = type === 'hot' ? '热门评论' : '评论';
+            const retryFunction = type === 'hot' ? 'loadHotCommentsForSelectedSong()' : 'loadAllCommentsForSelectedSong()';
+
+            resultsContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="font-size: 16px; color: #6c757d; margin-bottom: 12px;">😔 获取${typeText}失败</div>
+                    <div style="font-size: 12px; color: #adb5bd; margin-bottom: 16px;">网络连接问题或API服务暂时不可用</div>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button onclick="${retryFunction}"
+                                style="padding: 8px 16px; font-size: 12px; background: #868e96; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            重试
+                        </button>
+                        <button onclick="showGetCommentsInterface(selectedSongData)"
+                                style="padding: 8px 16px; font-size: 12px; background: #adb5bd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            返回
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示歌曲评论（包括热门评论和普通评论）
+        function displaySongComments(song, comments, type = 'all') {
+            console.log('displaySongComments 被调用，参数:', {
+                song: song.name,
+                commentsLength: comments.length,
+                type: type
+            });
+
+            const resultsContainer = document.getElementById('songResults');
+            console.log('resultsContainer 元素:', resultsContainer);
+
+            // 确保容器可见
+            resultsContainer.style.display = 'block';
+
+            // 分离热门评论和普通评论
+            const hotComments = comments.filter(c => c.isHot);
+            const normalComments = comments.filter(c => !c.isHot);
+
+            // 根据类型设置标题
+            let titleText = '';
+            let buttonSection = '';
+
+            if (type === 'hot') {
+                titleText = `🔥 ${comments.length} 条热门评论 (按点赞数排序)`;
+                buttonSection = `
+                    <button onclick="loadMoreHotComments()"
+                            style="padding: 8px 16px; font-size: 12px; background: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        加载更多热评
+                    </button>
+                `;
+            } else {
+                titleText = `🔥 ${hotComments.length} 条热门评论 | 💬 ${normalComments.length} 条普通评论 (按点赞数排序)`;
+                buttonSection = `
+                    <button onclick="loadMoreComments()"
+                            style="padding: 8px 16px; font-size: 12px; background: #868e96; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        加载更多评论
+                    </button>
+                `;
+            }
+
+            resultsContainer.innerHTML = `
+                <div style="padding: 16px; border-bottom: 1px solid #e9ecef; background: #f8f9fa;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <img src="${song.cover || song.fallbackCover}"
+                             style="width: 40px; height: 40px; border-radius: 6px;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: 500; color: #495057;">${song.name}</div>
+                            <div style="font-size: 14px; color: #6c757d;">${song.artist}</div>
+                            <div style="font-size: 12px; color: #adb5bd;">${song.album}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; color: #6c757d;">
+                        ${titleText}
+                    </div>
+                </div>
+                ${comments.slice(0, 20).map((comment, index) => `
+                    <div class="comment-item" id="comment-${index}" data-index="${index}" style="
+                        padding: 16px;
+                        border-bottom: 1px solid #f1f3f4;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        position: relative;
+                        ${comment.isHot ? 'background: linear-gradient(90deg, rgba(255, 107, 107, 0.05), transparent);' : ''}
+                    " onmouseover="this.style.backgroundColor='#f8f9fa'; this.style.transform='translateX(4px)'"
+                       onmouseout="this.style.backgroundColor='${comment.isHot ? 'rgba(255, 107, 107, 0.05)' : 'transparent'}'; this.style.transform='translateX(0)'">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <img src="${getProxiedImageUrl(comment.avatar)}"
+                                 style="width: 32px; height: 32px; border-radius: 50%; background: #e9ecef; flex-shrink: 0;"
+                                 onerror="this.style.display='none'">
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                    <span style="font-size: 13px; font-weight: 500; color: #495057;">${comment.username}</span>
+                                    ${comment.isHot ? '<span style="background: #ff6b6b; color: white; font-size: 10px; padding: 1px 4px; border-radius: 2px;">热评</span>' : ''}
+                                    <span style="font-size: 11px; color: #adb5bd;">${comment.timeStr}</span>
+                                    <span style="font-size: 12px; color: #ff6b6b; font-weight: 500; margin-left: auto;">
+                                        ❤️ ${comment.likedCount.toLocaleString()}
+                                    </span>
+                                </div>
+                                <div style="font-size: 15px; color: #495057; line-height: 1.5; word-wrap: break-word;">
+                                    ${comment.content}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #adb5bd;">
+                            点击选择
+                        </div>
+                    </div>
+                `).join('')}
+                <div style="padding: 16px; text-align: center; background: #f8f9fa;">
+                    <div style="margin-bottom: 12px; font-size: 12px; color: #6c757d;">
+                        显示前20条评论，${type === 'hot' ? '仅显示热门评论' : '热门评论优先显示'}
+                    </div>
+                    <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                        ${buttonSection}
+                        <button onclick="showGetCommentsInterface(selectedSongData)"
+                                style="padding: 8px 16px; font-size: 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            重新获取评论
+                        </button>
+                        <button onclick="displaySearchResults(window.currentSearchResults)"
+                                style="padding: 8px 16px; font-size: 12px; background: #adb5bd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            重新选择歌曲
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // 存储当前评论数据
+            window.currentComments = comments;
+            window.currentSongForComments = song;
+            window.currentCommentsOffset = 0;
+            window.currentCommentsType = type; // 存储当前评论类型
+
+            // 绑定评论点击事件
+            setTimeout(() => {
+                const commentItems = document.querySelectorAll('.comment-item');
+                commentItems.forEach((item, index) => {
+                    item.addEventListener('click', function() {
+                        const commentIndex = parseInt(this.getAttribute('data-index'));
+                        selectComment(commentIndex);
+                    });
+                });
+            }, 100);
+        }
+
+        // 更新海报背景
+        function updatePosterBackground(coverUrl) {
+            console.log('updatePosterBackground被调用，coverUrl:', coverUrl); // 调试信息
+
+            const backgroundCover = document.getElementById('backgroundCover');
+            const fallbackBackground = document.getElementById('fallbackBackground');
+            const glassOverlay = document.getElementById('glassOverlay');
+
+            console.log('backgroundCover元素:', backgroundCover); // 调试信息
+
+            if (!backgroundCover || !coverUrl) {
+                console.log('backgroundCover或coverUrl不存在，返回'); // 调试信息
+                return;
+            }
+
+            // 先测试图片是否能加载
+            const testImg = new Image();
+            testImg.onload = function() {
+                console.log('图片加载成功，设置背景'); // 调试信息
+
+                // 设置背景图片
+                backgroundCover.style.backgroundImage = `url('${coverUrl}')`;
+
+                // 显示背景封面，隐藏备用背景
+                backgroundCover.style.opacity = '0.9';
+                if (fallbackBackground) {
+                    fallbackBackground.style.opacity = '0.1';
+                }
+
+                // 增强磨玻璃效果
+                backgroundCover.style.filter = 'blur(12px) brightness(0.6) saturate(1.4) contrast(1.2)';
+                backgroundCover.style.transform = 'scale(1.2)';
+
+                // 调整毛玻璃遮罩层，让背景更突出
+                if (glassOverlay) {
+                    glassOverlay.style.background = `linear-gradient(135deg,
+                        rgba(255, 255, 255, 0.65) 0%,
+                        rgba(248, 250, 252, 0.6) 20%,
+                        rgba(240, 245, 251, 0.55) 50%,
+                        rgba(235, 240, 248, 0.6) 80%,
+                        rgba(255, 255, 255, 0.7) 100%)`;
+                    glassOverlay.style.backdropFilter = 'blur(35px) saturate(1.8) brightness(1.25) contrast(1.2)';
+                }
+
+                console.log('背景样式设置完成'); // 调试信息
+            };
+
+            testImg.onerror = function() {
+                console.log('图片加载失败:', coverUrl); // 调试信息
+                // 如果图片加载失败，尝试使用代理
+                const proxiedUrl = getProxiedImageUrl(coverUrl);
+                console.log('尝试使用代理URL:', proxiedUrl); // 调试信息
+
+                backgroundCover.style.backgroundImage = `url('${proxiedUrl}')`;
+                backgroundCover.style.opacity = '0.9';
+                if (fallbackBackground) {
+                    fallbackBackground.style.opacity = '0.1';
+                }
+                backgroundCover.style.filter = 'blur(12px) brightness(0.6) saturate(1.4) contrast(1.2)';
+                backgroundCover.style.transform = 'scale(1.2)';
+            };
+
+            testImg.src = coverUrl;
+        }
+
+        // 测试背景函数 - 可以在控制台中调用
+        function testBackground() {
+            const backgroundCover = document.getElementById('backgroundCover');
+            const fallbackBackground = document.getElementById('fallbackBackground');
+
+            console.log('backgroundCover:', backgroundCover);
+            console.log('fallbackBackground:', fallbackBackground);
+
+            if (backgroundCover) {
+                // 使用一个测试图片
+                backgroundCover.style.backgroundImage = "url('https://p1.music.126.net/6y-UleORITEDbvrOLV0Q8A==/5639395138885805.jpg')";
+                backgroundCover.style.opacity = '0.9';
+                backgroundCover.style.filter = 'blur(12px) brightness(0.6) saturate(1.4) contrast(1.2)';
+                backgroundCover.style.transform = 'scale(1.2)';
+                console.log('测试背景设置完成');
+            }
+
+            if (fallbackBackground) {
+                fallbackBackground.style.opacity = '0.1';
+            }
+        }
+
+        // 测试函数 - 可以在控制台中调用
+        function testUpdateElements() {
+            const usernameEl = document.getElementById('usernameDisplay');
+            const contentEl = document.getElementById('contentDisplay');
+            const likesEl = document.getElementById('likesDisplay');
+            const dateEl = document.getElementById('dateDisplay');
+
+            console.log('usernameEl:', usernameEl);
+            console.log('contentEl:', contentEl);
+            console.log('likesEl:', likesEl);
+            console.log('dateEl:', dateEl);
+
+            if (usernameEl) {
+                usernameEl.textContent = '测试用户名';
+                usernameEl.style.color = 'red';
+            }
+            if (contentEl) {
+                contentEl.innerHTML = '测试评论内容';
+                contentEl.style.color = 'blue';
+                contentEl.style.webkitTextFillColor = 'blue';
+                contentEl.style.background = 'none';
+            }
+            if (likesEl) {
+                likesEl.textContent = '9999';
+                likesEl.style.color = 'green';
+            }
+            if (dateEl) {
+                dateEl.textContent = '测试日期';
+                dateEl.style.color = 'purple';
+            }
+
+            console.log('测试更新完成');
+        }
+
+        // 选择评论
+        function selectComment(index) {
+            if (!window.currentComments || !window.currentComments[index] || !window.currentSongForComments) return;
+
+            const comment = window.currentComments[index];
+            const song = window.currentSongForComments;
+
+            // 设置歌曲信息
+            selectedSongData = song;
+
+            // 更新选中歌曲显示
+            const selectedCover = document.getElementById('selectedSongCover');
+            if (selectedCover) {
+                selectedCover.src = song.cover || song.fallbackCover;
+                selectedCover.onerror = () => { selectedCover.src = song.fallbackCover; };
+            }
+
+            const selectedSongName = document.getElementById('selectedSongName');
+            const selectedSongArtist = document.getElementById('selectedSongArtist');
+            const selectedSongDiv = document.getElementById('selectedSong');
+
+            if (selectedSongName) selectedSongName.textContent = song.name;
+            if (selectedSongArtist) selectedSongArtist.textContent = song.artist;
+            if (selectedSongDiv) selectedSongDiv.style.display = 'block';
+
+            // 更新评论卡片中的歌曲信息
+            const cardCover = document.getElementById('cardSongCover');
+            cardCover.src = song.cover || song.fallbackCover;
+            cardCover.onerror = () => { cardCover.src = song.fallbackCover; };
+
+            document.getElementById('cardSongName').textContent = song.name;
+            document.getElementById('cardSongArtist').textContent = song.artist;
+            document.getElementById('cardAlbumName').textContent = song.album || '未知专辑';
+            document.getElementById('songSection').style.display = 'flex';
+
+            // 更新表单中的评论信息
+            document.getElementById('username').value = comment.username;
+            document.getElementById('content').value = comment.content;
+            document.getElementById('likes').value = comment.likedCount;
+            document.getElementById('date').value = comment.timeStr;
+
+            // 随机设置VIP状态（因为API可能不返回VIP信息）
+            document.getElementById('isVip').checked = Math.random() > 0.7;
+
+            // 设置热评标签（因为这些都是热门评论）
+            document.getElementById('hotTag').value = '热评';
+
+            // 设置全局变量，供预览使用
+            selectedComment = {
+                username: comment.username,
+                content: comment.content,
+                likes: comment.likedCount,
+                date: comment.timeStr,
+                isVip: Math.random() > 0.7, // 随机VIP状态
+                isHot: true, // 这些都是热门评论
+                vipLevel: 'VIP·陆',
+                avatar: getProxiedImageUrl(comment.avatar) // 添加头像URL
+            };
+
+            selectedSong = {
+                name: song.name,
+                artist: song.artist,
+                album: song.album,
+                cover: song.cover || song.fallbackCover
+            };
+
+            // 更新预览卡片内容
+            updatePreview();
+
+            // 更新背景封面
+            updatePosterBackground(song.cover || song.fallbackCover);
+
+            // 设置居中背景图片和毛玻璃效果
+            setTimeout(() => {
+                const backgroundCover = document.getElementById('backgroundCover');
+                if (backgroundCover) {
+                    // 清除之前的背景设置
+                    backgroundCover.style.backgroundImage = 'none';
+                    backgroundCover.style.backgroundColor = 'transparent';
+                    backgroundCover.style.filter = 'none';
+
+                    // 创建背景图片容器
+                    let backgroundImageContainer = document.getElementById('backgroundImageContainer');
+                    if (!backgroundImageContainer) {
+                        backgroundImageContainer = document.createElement('div');
+                        backgroundImageContainer.id = 'backgroundImageContainer';
+                        backgroundCover.appendChild(backgroundImageContainer);
+                    }
+
+                    // 设置背景图片容器样式 - 居中正方形，四周留边距
+                    backgroundImageContainer.style.position = 'absolute';
+                    backgroundImageContainer.style.top = '50%';
+                    backgroundImageContainer.style.left = '50%';
+                    backgroundImageContainer.style.transform = 'translate(-50%, -50%)';
+                    backgroundImageContainer.style.width = '60%';  // 占屏幕宽度的60%
+                    backgroundImageContainer.style.height = '60%'; // 占屏幕高度的60%
+                    backgroundImageContainer.style.maxWidth = '500px';  // 最大宽度
+                    backgroundImageContainer.style.maxHeight = '500px'; // 最大高度
+                    backgroundImageContainer.style.backgroundImage = `url('${song.cover || song.fallbackCover}')`;
+                    backgroundImageContainer.style.backgroundSize = 'cover';
+                    backgroundImageContainer.style.backgroundPosition = 'center';
+                    backgroundImageContainer.style.backgroundRepeat = 'no-repeat';
+                    backgroundImageContainer.style.borderRadius = '20px';
+                    backgroundImageContainer.style.zIndex = '2';
+
+                    // 创建中心清晰图片
+                    let centerImage = document.getElementById('centerImage');
+                    if (!centerImage) {
+                        centerImage = document.createElement('div');
+                        centerImage.id = 'centerImage';
+                        backgroundCover.appendChild(centerImage);
+                    }
+
+                    // 设置中心清晰图片样式
+                    centerImage.style.position = 'absolute';
+                    centerImage.style.top = '50%';
+                    centerImage.style.left = '50%';
+                    centerImage.style.transform = 'translate(-50%, -50%)';
+                    centerImage.style.width = '300px';
+                    centerImage.style.height = '300px';
+                    centerImage.style.backgroundImage = `url('${song.cover || song.fallbackCover}')`;
+                    centerImage.style.backgroundSize = 'cover';
+                    centerImage.style.backgroundPosition = 'center';
+                    centerImage.style.backgroundRepeat = 'no-repeat';
+                    centerImage.style.borderRadius = '15px';
+                    centerImage.style.boxShadow = '0 15px 30px rgba(0,0,0,0.4)';
+                    centerImage.style.zIndex = '10';
+
+                    // 隐藏备用背景
+                    const fallbackBackground = document.getElementById('fallbackBackground');
+                    if (fallbackBackground) {
+                        fallbackBackground.style.opacity = '0';
+                    }
+
+                    // 设置毛玻璃遮罩层覆盖整个背景
+                    const glassOverlay = document.getElementById('glassOverlay');
+                    if (glassOverlay) {
+                        glassOverlay.style.background = `linear-gradient(135deg,
+                            rgba(255, 255, 255, 0.3) 0%,
+                            rgba(248, 250, 252, 0.2) 30%,
+                            rgba(240, 245, 251, 0.15) 50%,
+                            rgba(235, 240, 248, 0.2) 70%,
+                            rgba(255, 255, 255, 0.35) 100%)`;
+                        glassOverlay.style.backdropFilter = 'blur(25px) saturate(1.3) brightness(1.1)';
+                        glassOverlay.style.opacity = '0.8';
+                        glassOverlay.style.zIndex = '5';
+                    }
+
+                    console.log('居中背景图片和毛玻璃效果设置完成');
+                }
+            }, 200);
+
+            // 更新选中状态的视觉反馈
+            updateCommentSelection(index);
+
+            // 显示成功提示（不隐藏评论列表，方便切换）
+            // 使用更简洁的提示，不打断用户操作
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = '✅ 已选择该评论';
+            document.body.appendChild(toast);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 2000);
+        }
+
+        // 更新评论选中状态的视觉反馈
+        function updateCommentSelection(selectedIndex) {
+            // 移除所有评论的选中状态
+            const allComments = document.querySelectorAll('.comment-item');
+            allComments.forEach((item, index) => {
+                const isHot = window.currentComments && window.currentComments[index] && window.currentComments[index].isHot;
+                if (index === selectedIndex) {
+                    // 选中状态：添加蓝色边框和背景
+                    item.style.background = 'linear-gradient(90deg, rgba(0, 123, 255, 0.1), transparent)';
+                    item.style.borderLeft = '4px solid #007bff';
+                    item.style.boxShadow = '0 2px 8px rgba(0, 123, 255, 0.15)';
+                } else {
+                    // 未选中状态：恢复原始样式
+                    item.style.background = isHot ? 'linear-gradient(90deg, rgba(255, 107, 107, 0.05), transparent)' : 'transparent';
+                    item.style.borderLeft = 'none';
+                    item.style.boxShadow = 'none';
+                }
+            });
+        }
+
+        // 加载更多评论
+        async function loadMoreComments() {
+            if (!selectedSongData) return;
+
+            const currentOffset = window.currentCommentsOffset || 0;
+            const newOffset = currentOffset + 50;
+
+            try {
+                const moreComments = await getSongComments(selectedSongData.id, 50, newOffset);
+
+                if (moreComments.length > 0) {
+                    // 合并新评论到现有评论中
+                    const existingComments = window.currentComments || [];
+                    const allComments = [...existingComments, ...moreComments];
+
+                    // 去重（基于用户ID和时间）
+                    const uniqueComments = allComments.filter((comment, index, self) =>
+                        index === self.findIndex(c => c.userId === comment.userId && c.time === comment.time)
+                    );
+
+                    // 重新排序
+                    uniqueComments.sort((a, b) => {
+                        if (a.isHot && !b.isHot) return -1;
+                        if (!a.isHot && b.isHot) return 1;
+                        return b.likedCount - a.likedCount;
+                    });
+
+                    window.currentComments = uniqueComments;
+                    window.currentCommentsOffset = newOffset;
+
+                    displaySongComments(selectedSongData, uniqueComments);
+                } else {
+                    alert('没有更多评论了');
+                }
+            } catch (error) {
+                console.error('加载更多评论失败:', error);
+                alert('加载失败，请重试');
+            }
+        }
+
+        // 加载更多热门评论
+        async function loadMoreHotComments() {
+            if (!selectedSongData) return;
+
+            const currentOffset = window.currentCommentsOffset || 0;
+            const newOffset = currentOffset + 30;
+
+            try {
+                const moreComments = await getHotComments(selectedSongData.id, 30, newOffset);
+
+                if (moreComments.length > 0) {
+                    // 合并新评论到现有评论中
+                    const existingComments = window.currentComments || [];
+                    const allComments = [...existingComments, ...moreComments];
+
+                    // 去重（基于用户ID和时间）
+                    const uniqueComments = allComments.filter((comment, index, self) =>
+                        index === self.findIndex(c => c.userId === comment.userId && c.time === comment.time)
+                    );
+
+                    // 重新排序
+                    uniqueComments.sort((a, b) => b.likedCount - a.likedCount);
+
+                    window.currentComments = uniqueComments;
+                    window.currentCommentsOffset = newOffset;
+
+                    displaySongComments(selectedSongData, uniqueComments, 'hot');
+                } else {
+                    alert('没有更多热门评论了');
+                }
+            } catch (error) {
+                console.error('加载更多热门评论失败:', error);
+                alert('加载失败，请重试');
+            }
+        }
+
+        // 兼容旧的selectSong函数（用于模板加载）
+        function selectSong(songId) {
+            // 如果是从模板加载，先搜索该歌曲
+            if (typeof songId === 'object') {
+                // 直接传入歌曲对象
+                selectedSongData = songId;
+                updateSelectedSongDisplay(songId);
+            } else {
+                // 通过ID查找（暂时不支持，因为我们现在使用真实API）
+                console.warn('通过ID选择歌曲暂不支持，请使用搜索功能');
+            }
+        }
+
+        // 更新选中歌曲显示的辅助函数
+        function updateSelectedSongDisplay(song) {
+            const selectedCover = document.getElementById('selectedSongCover');
+            selectedCover.src = song.cover || song.fallbackCover;
+            selectedCover.onerror = () => { selectedCover.src = song.fallbackCover; };
+
+            document.getElementById('selectedSongName').textContent = song.name;
+            document.getElementById('selectedSongArtist').textContent = song.artist;
+            document.getElementById('selectedSong').style.display = 'block';
+
+            const cardCover = document.getElementById('cardSongCover');
+            cardCover.src = song.cover || song.fallbackCover;
+            cardCover.onerror = () => { cardCover.src = song.fallbackCover; };
+
+            document.getElementById('cardSongName').textContent = song.name;
+            document.getElementById('cardSongArtist').textContent = song.artist;
+            document.getElementById('songSection').style.display = 'flex';
+        }
+
+        // 清除选中的歌曲
+        function clearSelectedSong() {
+            selectedSongData = null;
+            document.getElementById('selectedSong').style.display = 'none';
+            document.getElementById('songSection').style.display = 'none';
+        }
+
+        // 播放歌曲预览（模拟功能）
+        function playSongPreview() {
+            if (!selectedSongData) return;
+
+            const cover = document.getElementById('cardSongCover');
+            cover.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                cover.style.transform = 'scale(1)';
+            }, 150);
+
+            // 显示播放提示
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            notification.textContent = `正在播放: ${selectedSongData.name} - ${selectedSongData.artist}`;
+
+            // 添加淡入淡出动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeInOut {
+                    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                document.body.removeChild(notification);
+                document.head.removeChild(style);
+            }, 2000);
+        }
+
+        // 模板数据
+        const templates = {
+            template1: {
+                username: '深海里的鱼',
+                isVip: false,
+                date: '2024年03月15日',
+                hotTag: '',
+                content: '凌晨三点的雨声，像极了我内心的独白',
+                likes: 2847,
+                suggestedSearch: '凌晨三点'
+            },
+            template2: {
+                username: '月亮不睡我不睡',
+                isVip: false,
+                date: '2024年02月28日',
+                hotTag: '',
+                content: '又是一个失眠的夜晚，这首歌陪我到天亮',
+                likes: 1563,
+                suggestedSearch: '失眠飞行'
+            },
+            template3: {
+                username: '孤独患者',
+                isVip: false,
+                date: '2024年01月20日',
+                hotTag: '',
+                content: '有些话只能对着歌词说，有些眼泪只能在深夜流',
+                likes: 4291,
+                suggestedSearch: '孤独患者'
+            }
+        };
+
+        // 加载模板
+        function loadTemplate() {
+            const templateSelect = document.getElementById('template');
+            const selectedTemplate = templateSelect.value;
+
+            if (selectedTemplate && templates[selectedTemplate]) {
+                const template = templates[selectedTemplate];
+                document.getElementById('username').value = template.username;
+                document.getElementById('isVip').checked = template.isVip;
+                document.getElementById('date').value = template.date;
+                document.getElementById('hotTag').value = template.hotTag;
+                document.getElementById('content').value = template.content;
+                document.getElementById('likes').value = template.likes;
+
+                // 设置建议搜索的歌曲名
+                if (template.suggestedSearch) {
+                    document.getElementById('songSearch').value = template.suggestedSearch;
+                    // 可以选择自动搜索
+                    // searchSong();
+                } else {
+                    clearSelectedSong();
+                }
+
+                updatePreview();
+            }
+        }
+
+        // 获取当前日期
+        function setToday() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const dateStr = `${year}年${month}月${day}日`;
+            document.getElementById('date').value = dateStr;
+            // 不在这里调用updatePreview，避免覆盖选中的评论
+        }
+
+
+
+        // 更新预览
+        function updatePreview() {
+            // 如果有选中的评论，使用选中评论的数据，否则使用表单数据
+            let username, isVip, date, hotTag, content, likes;
+
+            if (selectedComment) {
+                username = selectedComment.username;
+                isVip = selectedComment.isVip;
+                date = selectedComment.date;
+                hotTag = selectedComment.isHot ? '热' : '';
+                content = selectedComment.content;
+                likes = selectedComment.likes;
+            } else {
+                username = document.getElementById('username').value || '深海里的鱼';
+                isVip = document.getElementById('isVip').checked;
+                date = document.getElementById('date').value || '2024年03月15日';
+                hotTag = document.getElementById('hotTag').value;
+                content = document.getElementById('content').value || '凌晨三点的雨声，像极了我内心的独白';
+                likes = document.getElementById('likes').value || '2847';
+            }
+
+            // 更新预览卡片内容
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const likesDisplay = document.getElementById('likesDisplay');
+
+            if (usernameDisplay) usernameDisplay.textContent = username;
+            if (dateDisplay) dateDisplay.textContent = date;
+            if (likesDisplay) likesDisplay.textContent = likes;
+
+            // 特殊处理contentDisplay，确保样式正确
+            const contentDisplay = document.getElementById('contentDisplay');
+            if (contentDisplay) {
+                contentDisplay.style.webkitTextFillColor = '#2c3e50';
+                contentDisplay.style.color = '#2c3e50';
+                contentDisplay.style.background = 'none';
+                contentDisplay.innerHTML = content;
+            }
+
+            // 更新VIP标识
+            const vipBadge = document.getElementById('vipBadge');
+            if (isVip) {
+                vipBadge.style.display = 'inline';
+                vipBadge.textContent = selectedComment?.vipLevel || 'VIP·陆';
+            } else {
+                vipBadge.style.display = 'none';
+            }
+
+            // 更新标签
+            const hotTagDisplay = document.getElementById('hotTagDisplay');
+            if (hotTag) {
+                hotTagDisplay.textContent = hotTag;
+                hotTagDisplay.style.display = 'inline';
+            } else {
+                hotTagDisplay.style.display = 'none';
+            }
+
+            // 更新头像
+            const avatarDisplay = document.getElementById('avatarDisplay');
+            if (selectedComment && selectedComment.avatar) {
+                // 如果有选中评论且有头像，显示真实头像
+                avatarDisplay.innerHTML = `<img src="${selectedComment.avatar}" style="
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    object-fit: cover;
+                " onerror="this.parentNode.innerHTML='${username.charAt(0)}'; this.parentNode.style.background='#ff6b6b'; this.parentNode.style.color='white';">`;
+                avatarDisplay.style.background = 'transparent';
+                avatarDisplay.style.color = 'transparent';
+            } else {
+                // 否则显示用户名首字母
+                avatarDisplay.textContent = username.charAt(0);
+                avatarDisplay.style.background = '#ff6b6b';
+                avatarDisplay.style.color = 'white';
+            }
+
+            // 更新歌曲信息（如果有选中的歌曲）
+            const songSection = document.getElementById('songSection');
+            if (selectedSong) {
+                songSection.style.display = 'flex';
+                const cardCover = document.getElementById('cardSongCover');
+                cardCover.src = selectedSong.cover;
+                cardCover.onerror = () => { cardCover.src = selectedSong.cover; };
+
+                const cardSongName = document.getElementById('cardSongName');
+                const cardSongArtist = document.getElementById('cardSongArtist');
+                const cardAlbumName = document.getElementById('cardAlbumName');
+
+                cardSongName.textContent = selectedSong.name;
+                cardSongArtist.textContent = selectedSong.artist;
+                if (cardAlbumName) {
+                    cardAlbumName.textContent = selectedSong.album || '未知专辑';
+                }
+
+                // 更新背景封面
+                updateBackgroundCover(selectedSong.cover);
+
+                // 自动调整字体大小
+                setTimeout(() => {
+                    autoResizeText(cardSongName, 13);
+                    autoResizeText(cardSongArtist, 10);
+                }, 50);
+            } else {
+                songSection.style.display = 'none';
+                // 清除背景封面，显示备用背景
+                updateBackgroundCover(null);
+            }
+
+            // 触发闪光效果
+            triggerShineEffect();
+        }
+
+        // 触发闪光效果
+        function triggerShineEffect() {
+            const shineEffect = document.getElementById('shineEffect');
+            if (shineEffect) {
+                shineEffect.style.left = '-100%';
+                setTimeout(() => {
+                    shineEffect.style.left = '100%';
+                }, 100);
+            }
+        }
+
+        // 更新背景封面
+        function updateBackgroundCover(coverUrl) {
+            const backgroundCover = document.getElementById('backgroundCover');
+            const fallbackBackground = document.getElementById('fallbackBackground');
+
+            if (!backgroundCover) return;
+
+            if (!coverUrl) {
+                // 如果没有封面，显示备用背景
+                backgroundCover.style.opacity = '0';
+                if (fallbackBackground) {
+                    fallbackBackground.style.opacity = '1';
+                    fallbackBackground.style.transform = 'scale(1)';
+                }
+                return;
+            }
+
+            // 预加载图片
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = function() {
+                // 图片加载成功，更新背景
+                backgroundCover.style.backgroundImage = `url('${coverUrl}')`;
+
+                // 添加缩放效果，创造景深感
+                backgroundCover.style.transform = 'scale(1.1)';
+                backgroundCover.style.filter = 'blur(1px) brightness(0.9) saturate(1.2)';
+
+                // 渐显背景封面
+                setTimeout(() => {
+                    backgroundCover.style.opacity = '0.9';
+                    if (fallbackBackground) {
+                        fallbackBackground.style.opacity = '0';
+                        fallbackBackground.style.transform = 'scale(1.05)';
+                    }
+                }, 100);
+
+                console.log('背景封面更新成功:', coverUrl);
+            };
+
+            img.onerror = function() {
+                // 图片加载失败，使用备用背景
+                backgroundCover.style.opacity = '0';
+                if (fallbackBackground) {
+                    fallbackBackground.style.opacity = '1';
+                    fallbackBackground.style.transform = 'scale(1)';
+                }
+                console.log('背景封面加载失败，使用备用背景');
+            };
+
+            img.src = coverUrl;
+        }
+
+        // 自动调整文字大小以适应容器
+        function autoResizeText(element, maxFontSize, minFontSize = 8) {
+            if (!element || !element.textContent.trim()) return;
+
+            const container = element.parentElement;
+            const containerWidth = container.offsetWidth;
+            const containerHeight = parseInt(getComputedStyle(element).height);
+
+            let fontSize = maxFontSize;
+            element.style.fontSize = fontSize + 'px';
+
+            // 创建临时测量元素
+            const tempElement = element.cloneNode(true);
+            tempElement.style.position = 'absolute';
+            tempElement.style.visibility = 'hidden';
+            tempElement.style.height = 'auto';
+            tempElement.style.width = containerWidth + 'px';
+            tempElement.style.whiteSpace = 'normal';
+            tempElement.style.wordWrap = 'break-word';
+            document.body.appendChild(tempElement);
+
+            // 逐步减小字体直到适合容器
+            while (fontSize > minFontSize) {
+                tempElement.style.fontSize = fontSize + 'px';
+
+                if (tempElement.offsetHeight <= containerHeight) {
+                    break;
+                }
+
+                fontSize -= 0.5;
+            }
+
+            // 应用最终字体大小
+            element.style.fontSize = fontSize + 'px';
+
+            // 清理临时元素
+            document.body.removeChild(tempElement);
+        }
+
+        // 手动绘制海报（备用方案）
+        async function createManualPoster() {
+            return new Promise((resolve, reject) => {
+                try {
+                    const posterContainer = document.getElementById('posterContainer');
+                    const rect = posterContainer.getBoundingClientRect();
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = rect.width * 2;
+                    canvas.height = rect.height * 2;
+                    const ctx = canvas.getContext('2d');
+
+                    // 设置高质量渲染
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+
+                    // 绘制夜间模式主背景渐变
+                    const mainGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    mainGradient.addColorStop(0, '#1a1a2e');   // 深蓝灰
+                    mainGradient.addColorStop(0.25, '#16213e'); // 深蓝
+                    mainGradient.addColorStop(0.5, '#0f3460');  // 中蓝
+                    mainGradient.addColorStop(0.75, '#16213e'); // 深蓝
+                    mainGradient.addColorStop(1, '#1a1a2e');   // 深蓝灰
+                    ctx.fillStyle = mainGradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // 绘制容器背景（模拟毛玻璃效果）
+                    const containerPadding = 40;
+                    const containerX = containerPadding;
+                    const containerY = containerPadding;
+                    const containerWidth = canvas.width - containerPadding * 2;
+                    const containerHeight = canvas.height - containerPadding * 2;
+                    const borderRadius = 40;
+
+                    // 容器背景
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius);
+                    ctx.clip();
+
+                    const containerGradient = ctx.createLinearGradient(containerX, containerY, containerX + containerWidth, containerY + containerHeight);
+                    containerGradient.addColorStop(0, 'rgba(40, 50, 70, 0.4)');   // 深色半透明
+                    containerGradient.addColorStop(0.5, 'rgba(30, 40, 60, 0.3)'); // 更深的中间
+                    containerGradient.addColorStop(1, 'rgba(40, 50, 70, 0.4)');   // 深色半透明
+                    ctx.fillStyle = containerGradient;
+                    ctx.fillRect(containerX, containerY, containerWidth, containerHeight);
+                    ctx.restore();
+
+                    // 绘制容器边框（夜间模式，无阴影）
+                    ctx.strokeStyle = 'rgba(100, 120, 150, 0.5)'; // 柔和的蓝灰色边框
+                    ctx.lineWidth = 2; // 更细的边框
+                    ctx.beginPath();
+                    ctx.roundRect(containerX, containerY, containerWidth, containerHeight, borderRadius);
+                    ctx.stroke();
+
+                    // 绘制歌曲信息区域
+                    const songSectionY = containerY + 40;
+                    const songSectionHeight = 120;
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(containerX + 30, songSectionY, containerWidth - 60, songSectionHeight, 20);
+                    ctx.clip();
+
+                    const songGradient = ctx.createLinearGradient(0, songSectionY, 0, songSectionY + songSectionHeight);
+                    songGradient.addColorStop(0, 'rgba(50,60,80,0.9)');   // 深色背景
+                    songGradient.addColorStop(1, 'rgba(40,50,70,0.9)');   // 更深的底部
+                    ctx.fillStyle = songGradient;
+                    ctx.fillRect(containerX + 30, songSectionY, containerWidth - 60, songSectionHeight);
+                    ctx.restore();
+
+                    // 歌曲信息边框（夜间模式）
+                    ctx.strokeStyle = 'rgba(100,120,150,0.3)'; // 柔和的边框
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(containerX + 30, songSectionY, containerWidth - 60, songSectionHeight, 20);
+                    ctx.stroke();
+
+                    // 绘制歌曲标题（夜间模式文字）
+                    const songTitle = document.getElementById('songTitle');
+                    const songTitleText = songTitle ? songTitle.textContent : '歌曲标题';
+                    ctx.fillStyle = '#e0e6ed'; // 浅色文字
+                    ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(songTitleText, canvas.width / 2, songSectionY + 45);
+
+                    // 绘制歌手名（夜间模式）
+                    const artistName = document.getElementById('artistName');
+                    const artistText = artistName ? artistName.textContent : '歌手';
+                    ctx.fillStyle = '#a0a8b0'; // 中等亮度的文字
+                    ctx.font = '24px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial';
+                    ctx.fillText(artistText, canvas.width / 2, songSectionY + 85);
+
+                    // 绘制评论区域
+                    const commentY = songSectionY + songSectionHeight + 60;
+
+                    // 用户头像
+                    const avatarSize = 80;
+                    const avatarX = containerX + 60;
+                    const avatarYPos = commentY;
+
+                    const avatarGradient = ctx.createLinearGradient(avatarX, avatarYPos, avatarX + avatarSize, avatarYPos + avatarSize);
+                    avatarGradient.addColorStop(0, '#667eea');
+                    avatarGradient.addColorStop(1, '#764ba2');
+                    ctx.fillStyle = avatarGradient;
+                    ctx.beginPath();
+                    ctx.arc(avatarX + avatarSize/2, avatarYPos + avatarSize/2, avatarSize/2, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // 头像文字
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 36px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const usernameDisplay = document.getElementById('usernameDisplay');
+                    const avatarText = usernameDisplay ? usernameDisplay.textContent.charAt(0) : '深';
+                    ctx.fillText(avatarText, avatarX + avatarSize/2, avatarYPos + avatarSize/2);
+
+                    // 用户名和日期（夜间模式）
+                    ctx.fillStyle = '#d0d6dd'; // 浅色用户名
+                    ctx.font = 'bold 28px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    const username = usernameDisplay ? usernameDisplay.textContent : '深海里的鱼';
+                    ctx.fillText(username, avatarX + avatarSize + 30, avatarYPos + 10);
+
+                    ctx.fillStyle = '#8a9199'; // 中等亮度的日期
+                    ctx.font = '20px Arial';
+                    const dateDisplay = document.getElementById('dateDisplay');
+                    const dateText = dateDisplay ? dateDisplay.textContent : '2024年03月15日';
+                    ctx.fillText(dateText, avatarX + avatarSize + 30, avatarYPos + 50);
+
+                    // 评论内容（夜间模式）
+                    const contentDisplay = document.getElementById('contentDisplay');
+                    const contentText = contentDisplay ? contentDisplay.textContent : '凌晨三点的雨声，像极了我内心的独白';
+
+                    ctx.fillStyle = '#e8eef5'; // 明亮的评论文字
+                    ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    // 文字换行处理
+                    const maxWidth = containerWidth - 120;
+                    const lineHeight = 55;
+                    const words = contentText.split('');
+                    let line = '';
+                    let y = commentY + 150;
+
+                    for (let i = 0; i < words.length; i++) {
+                        const testLine = line + words[i];
+                        const metrics = ctx.measureText(testLine);
+                        const testWidth = metrics.width;
+
+                        if (testWidth > maxWidth && i > 0) {
+                            ctx.fillText(line, canvas.width / 2, y);
+                            line = words[i];
+                            y += lineHeight;
+                        } else {
+                            line = testLine;
+                        }
+                    }
+                    ctx.fillText(line, canvas.width / 2, y);
+
+                    resolve(canvas);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // 设置海报尺寸
+        function setPosterSize(size) {
+            const posterContainer = document.getElementById('posterContainer');
+            const commentCard = document.getElementById('commentCard');
+            const verticalBtn = document.getElementById('verticalBtn');
+            const squareBtn = document.getElementById('squareBtn');
+
+            if (size === 'vertical') {
+                // 竖屏 9:16
+                posterContainer.style.width = '300px';
+                posterContainer.style.height = '533px';
+
+                // 调整内容布局为竖屏模式
+                commentCard.style.padding = '40px 30px';
+                commentCard.style.justifyContent = 'space-between';
+
+                // 更新按钮状态
+                verticalBtn.style.background = '#667eea';
+                verticalBtn.style.color = 'white';
+                squareBtn.style.background = 'transparent';
+                squareBtn.style.color = '#667eea';
+            } else if (size === 'square') {
+                // 方形 1:1
+                posterContainer.style.width = '400px';
+                posterContainer.style.height = '400px';
+
+                // 调整内容布局为方形模式
+                commentCard.style.padding = '30px 25px';
+                commentCard.style.justifyContent = 'space-around';
+
+                // 更新按钮状态
+                squareBtn.style.background = '#667eea';
+                squareBtn.style.color = 'white';
+                verticalBtn.style.background = 'transparent';
+                verticalBtn.style.color = '#667eea';
+            }
+
+            // 添加过渡动画
+            posterContainer.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+
+            // 调整内容区域的布局
+            adjustContentLayout(size);
+
+            // 重新调整歌曲信息字体大小
+            setTimeout(() => {
+                const songName = document.getElementById('cardSongName');
+                const songArtist = document.getElementById('cardSongArtist');
+                if (songName && songName.textContent.trim()) {
+                    autoResizeText(songName, 13);
+                }
+                if (songArtist && songArtist.textContent.trim()) {
+                    autoResizeText(songArtist, 10);
+                }
+            }, 100);
+        }
+
+        // 调整内容布局
+        function adjustContentLayout(size) {
+            const userInfoSection = document.querySelector('.comment-card > div:first-child');
+            const contentSection = document.querySelector('.comment-card > div:nth-child(2)');
+            const songSection = document.getElementById('songSection');
+            const cardSongName = document.getElementById('cardSongName');
+            const cardSongArtist = document.getElementById('cardSongArtist');
+            const contentDisplay = document.getElementById('contentDisplay');
+
+            if (size === 'square') {
+                // 方形模式：紧凑布局
+                if (userInfoSection) {
+                    userInfoSection.style.marginBottom = '15px';
+                }
+                if (contentSection) {
+                    contentSection.style.padding = '10px 0';
+                }
+                if (contentDisplay) {
+                    contentDisplay.style.fontSize = '15px';
+                    contentDisplay.style.lineHeight = '1.5';
+                    contentDisplay.style.marginBottom = '10px';
+                    contentDisplay.style.padding = '0 8px';
+                }
+                if (songSection) {
+                    songSection.style.padding = '10px';
+                    songSection.style.minHeight = '45px';
+                    songSection.style.marginTop = '15px';
+                    songSection.style.borderRadius = '14px';
+                }
+                // 调整歌曲信息字体和间距
+                if (cardSongName) {
+                    cardSongName.style.height = '28px';
+                    cardSongName.style.marginBottom = '2px';
+                }
+                if (cardSongArtist) {
+                    cardSongArtist.style.height = '20px';
+                }
+
+                // 调整引号大小
+                const quotes = document.querySelectorAll('.comment-card div[style*="font-size: 40px"]');
+                quotes.forEach(quote => {
+                    quote.style.fontSize = '32px';
+                    quote.style.marginBottom = '10px';
+                });
+
+            } else {
+                // 竖屏模式：标准布局
+                if (userInfoSection) {
+                    userInfoSection.style.marginBottom = '30px';
+                }
+                if (contentSection) {
+                    contentSection.style.padding = '20px 0';
+                }
+                if (contentDisplay) {
+                    contentDisplay.style.fontSize = '18px';
+                    contentDisplay.style.lineHeight = '1.8';
+                    contentDisplay.style.marginBottom = '15px';
+                    contentDisplay.style.padding = '0 10px';
+                }
+                if (songSection) {
+                    songSection.style.padding = '16px';
+                    songSection.style.minHeight = '65px';
+                    songSection.style.marginTop = '20px';
+                    songSection.style.borderRadius = '18px';
+                }
+                // 恢复歌曲信息标准尺寸
+                if (cardSongName) {
+                    cardSongName.style.height = '32px';
+                    cardSongName.style.marginBottom = '4px';
+                }
+                if (cardSongArtist) {
+                    cardSongArtist.style.height = '24px';
+                }
+
+                // 恢复引号大小
+                const quotes = document.querySelectorAll('.comment-card div[style*="font-size: 32px"], .comment-card div[style*="font-size: 40px"]');
+                quotes.forEach(quote => {
+                    quote.style.fontSize = '40px';
+                    quote.style.marginBottom = '15px';
+                });
+            }
+        }
+
+        // 头像上传
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarDisplay = document.getElementById('avatarDisplay');
+                    avatarDisplay.innerHTML = `<img src="${e.target.result}" alt="头像">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 导出图片
+        function exportImage() {
+            // 检测设备类型
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                alert('📱 移动端保存方法：\n1. 长按评论卡片区域\n2. 选择"保存图片"或"添加到照片"\n3. 图片将保存到相册');
+            } else {
+                alert('💻 电脑端保存方法：\n1. 右键点击评论卡片\n2. 选择"将图像另存为"\n3. 或使用截图工具截取卡片区域');
+            }
+        }
+
+        // 生成循环播放视频
+        async function generateVideo() {
+            const posterContainer = document.getElementById('posterContainer');
+            if (!posterContainer) {
+                alert('请先选择一条评论生成海报');
+                return;
+            }
+
+            // 显示生成进度
+            const progressDiv = document.createElement('div');
+            progressDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                z-index: 10000;
+                text-align: center;
+            `;
+            progressDiv.innerHTML = '🎬 正在生成视频...<br><div id="progress">准备中...</div>';
+            document.body.appendChild(progressDiv);
+
+            try {
+                // 创建canvas用于录制
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // 获取海报容器的尺寸
+                const rect = posterContainer.getBoundingClientRect();
+                canvas.width = rect.width * 2; // 提高分辨率
+                canvas.height = rect.height * 2;
+
+                // 临时调整样式以确保html2canvas正确渲染
+                const elementsToFix = [];
+
+                // 处理backdrop-filter - 用实体背景替代
+                const elementsWithBackdrop = posterContainer.querySelectorAll('[style*="backdrop-filter"]');
+                elementsWithBackdrop.forEach(el => {
+                    const originalBackdrop = el.style.backdropFilter;
+                    const originalBackground = el.style.background;
+                    elementsToFix.push({
+                        el,
+                        props: {
+                            backdropFilter: originalBackdrop,
+                            background: originalBackground
+                        }
+                    });
+
+                    el.style.backdropFilter = 'none';
+                    // 根据元素类型设置合适的背景
+                    if (el.id === 'glassOverlay') {
+                        el.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(248, 250, 252, 0.15) 50%, rgba(255, 255, 255, 0.3) 100%)';
+                    } else if (el.id === 'songSection') {
+                        el.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%)';
+                    } else {
+                        el.style.background = 'rgba(255,255,255,0.2)';
+                    }
+                });
+
+                // 处理mix-blend-mode
+                const elementsWithBlend = posterContainer.querySelectorAll('[style*="mix-blend-mode"]');
+                elementsWithBlend.forEach(el => {
+                    const originalBlend = el.style.mixBlendMode;
+                    elementsToFix.push({
+                        el,
+                        props: { mixBlendMode: originalBlend }
+                    });
+                    el.style.mixBlendMode = 'normal';
+                });
+
+                // 确保容器有明确的背景
+                const originalContainerBg = posterContainer.style.background;
+                elementsToFix.push({
+                    el: posterContainer,
+                    props: { background: originalContainerBg }
+                });
+                if (!posterContainer.style.background || posterContainer.style.background === 'transparent') {
+                    posterContainer.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)';
+                }
+
+                // 创建MediaRecorder，优先使用高质量编码
+                const stream = canvas.captureStream(30); // 30fps
+                let mimeType = 'video/webm;codecs=vp9';
+
+                // 检查浏览器支持的格式
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                        mimeType = 'video/webm;codecs=vp8';
+                    } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                        mimeType = 'video/webm';
+                    } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                        mimeType = 'video/mp4';
+                    }
+                }
+
+                const mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: mimeType,
+                    videoBitsPerSecond: 2500000 // 2.5Mbps 高质量
+                });
+
+                const chunks = [];
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        chunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: mimeType });
+                    const url = URL.createObjectURL(blob);
+
+                    // 获取当前时间作为文件名
+                    const now = new Date();
+                    const timestamp = now.toISOString().slice(0, 19).replace(/[:-]/g, '');
+                    const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+
+                    // 创建下载链接
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `音乐海报视频_${timestamp}.${extension}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    document.body.removeChild(progressDiv);
+
+                    // 显示成功提示
+                    const successDiv = document.createElement('div');
+                    successDiv.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: linear-gradient(135deg, #4CAF50, #45a049);
+                        color: white;
+                        padding: 20px 30px;
+                        border-radius: 15px;
+                        z-index: 10000;
+                        text-align: center;
+                        box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+                        animation: fadeInScale 0.5s ease;
+                    `;
+                    successDiv.innerHTML = `
+                        <div style="font-size: 24px; margin-bottom: 10px;">🎉</div>
+                        <div style="font-size: 16px; font-weight: 600;">视频生成完成！</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">已开始下载 ${extension.toUpperCase()} 格式视频</div>
+                    `;
+                    document.body.appendChild(successDiv);
+
+                    setTimeout(() => {
+                        document.body.removeChild(successDiv);
+                    }, 3000);
+                };
+
+                // 开始录制
+                mediaRecorder.start();
+
+                // 录制动画帧
+                let frame = 0;
+                const totalFrames = 150; // 5秒 * 30fps
+                let posterCanvas = null;
+
+                // 等待一下让样式生效
+                setTimeout(() => {
+                    document.getElementById('progress').textContent = '正在捕获海报...';
+
+                    // 生成海报canvas - 使用简化配置
+                    html2canvas(posterContainer, {
+                        scale: 1, // 降低scale避免内存问题
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#f0f0f0', // 设置默认背景色
+                        logging: true,
+                        width: posterContainer.offsetWidth,
+                        height: posterContainer.offsetHeight,
+                        onclone: (clonedDoc) => {
+                            console.log('开始克隆文档...');
+                            const clonedContainer = clonedDoc.getElementById('posterContainer');
+                            if (clonedContainer) {
+                                console.log('找到克隆的容器');
+
+                                // 确保容器可见
+                                clonedContainer.style.display = 'block';
+                                clonedContainer.style.visibility = 'visible';
+                                clonedContainer.style.opacity = '1';
+
+                                // 设置明确的尺寸
+                                clonedContainer.style.width = posterContainer.offsetWidth + 'px';
+                                clonedContainer.style.height = posterContainer.offsetHeight + 'px';
+
+                                // 设置夜间模式背景
+                                if (!clonedContainer.style.background || clonedContainer.style.background === 'transparent') {
+                                    clonedContainer.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 75%, #1a1a2e 100%)';
+                                }
+
+                                // 确保所有子元素可见
+                                const allElements = clonedContainer.querySelectorAll('*');
+                                allElements.forEach(el => {
+                                    el.style.visibility = 'visible';
+                                    if (el.style.opacity === '0') {
+                                        el.style.opacity = '1';
+                                    }
+                                    if (el.style.display === 'none') {
+                                        el.style.display = 'block';
+                                    }
+                                });
+
+                                console.log('克隆文档处理完成');
+                            } else {
+                                console.error('未找到克隆的容器');
+                            }
+                        }
+                    }).then(canvas => {
+                        // 恢复原始样式
+                        elementsToFix.forEach(({el, props}) => {
+                            Object.keys(props).forEach(prop => {
+                                el.style[prop] = props[prop];
+                            });
+                        });
+
+                        posterCanvas = canvas;
+                        console.log('海报canvas生成成功，尺寸:', canvas.width, 'x', canvas.height);
+
+                        // 检查canvas是否有内容
+                        const tempCtx = canvas.getContext('2d');
+                        const imageData = tempCtx.getImageData(0, 0, canvas.width, canvas.height);
+                        const hasContent = imageData.data.some(pixel => pixel !== 0);
+                        console.log('海报canvas是否有内容:', hasContent);
+
+                        if (!hasContent) {
+                            console.warn('海报canvas为空，尝试备用方案');
+                            throw new Error('海报canvas为空');
+                        }
+
+                        document.getElementById('progress').textContent = '开始录制视频...';
+                        recordFrame(); // 开始录制
+                    }).catch(error => {
+                        // 恢复原始样式
+                        elementsToFix.forEach(({el, props}) => {
+                            Object.keys(props).forEach(prop => {
+                                el.style[prop] = props[prop];
+                            });
+                        });
+
+                        console.error('html2canvas失败，尝试手动绘制:', error);
+                        document.getElementById('progress').textContent = '使用备用方案...';
+
+                        // 备用方案：手动绘制海报
+                        createManualPoster().then(manualCanvas => {
+                            posterCanvas = manualCanvas;
+                            console.log('手动海报生成成功');
+                            document.getElementById('progress').textContent = '开始录制视频...';
+                            recordFrame();
+                        }).catch(manualError => {
+                            console.error('手动绘制也失败:', manualError);
+                            document.body.removeChild(progressDiv);
+                            alert('❌ 视频生成失败，请重试');
+                        });
+                    });
+                }, 100);
+
+                function recordFrame() {
+                    if (!posterCanvas) {
+                        console.error('posterCanvas为空，无法录制');
+                        return;
+                    }
+
+                    // 调试信息
+                    if (frame === 0) {
+                        console.log('开始录制，海报尺寸:', posterCanvas.width, 'x', posterCanvas.height);
+                        console.log('视频canvas尺寸:', canvas.width, 'x', canvas.height);
+                    }
+
+                    // 清除canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // 创建动画效果
+                    const progress = frame / totalFrames;
+                    const time = progress * 2 * Math.PI; // 1个完整循环
+
+                    // 创建夜间模式动态背景
+                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    const hue1 = (time * 15 + 220) % 360; // 深蓝紫色系
+                    const hue2 = (time * 15 + 260) % 360; // 深紫色系
+                    gradient.addColorStop(0, `hsla(${hue1}, 40%, 8%, 1)`);   // 很深的背景
+                    gradient.addColorStop(0.5, `hsla(${(hue1 + hue2) / 2}, 35%, 6%, 1)`);
+                    gradient.addColorStop(1, `hsla(${hue2}, 40%, 8%, 1)`);
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // 添加夜间模式光效（更柔和）
+                    for (let i = 0; i < 4; i++) {
+                        const lightTime = time + i * 1.2;
+                        const x = (Math.sin(lightTime * 0.4) * 0.25 + 0.5) * canvas.width;
+                        const y = (Math.cos(lightTime * 0.25) * 0.25 + 0.5) * canvas.height;
+                        const size = Math.sin(lightTime * 1.0) * 30 + 50;
+                        const opacity = Math.sin(lightTime * 1.2) * 0.08 + 0.12; // 更低的透明度
+
+                        const lightGradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+                        lightGradient.addColorStop(0, `hsla(${(lightTime * 30 + 200) % 360}, 60%, 50%, ${opacity})`); // 更暗的光效
+                        lightGradient.addColorStop(1, 'transparent');
+                        ctx.fillStyle = lightGradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+
+                    // 计算海报在视频中的合适尺寸
+                    const posterAspect = posterCanvas.width / posterCanvas.height;
+                    const canvasAspect = canvas.width / canvas.height;
+
+                    let baseWidth, baseHeight;
+
+                    // 根据宽高比决定缩放方式
+                    if (posterAspect > canvasAspect) {
+                        // 海报更宽，以宽度为准
+                        baseWidth = canvas.width * 0.7; // 占视频宽度的70%
+                        baseHeight = baseWidth / posterAspect;
+                    } else {
+                        // 海报更高，以高度为准
+                        baseHeight = canvas.height * 0.7; // 占视频高度的70%
+                        baseWidth = baseHeight * posterAspect;
+                    }
+
+                    // 添加轻微的呼吸动画
+                    const scale = 1 + Math.sin(time * 0.8) * 0.02;
+                    const drawWidth = baseWidth * scale;
+                    const drawHeight = baseHeight * scale;
+                    const x = (canvas.width - drawWidth) / 2;
+                    const y = (canvas.height - drawHeight) / 2;
+
+                    // 调试信息（仅第一帧）
+                    if (frame === 0) {
+                        console.log('绘制位置:', x, y, '尺寸:', drawWidth, drawHeight);
+                    }
+
+                    // 绘制海报（无阴影）
+                    try {
+                        ctx.drawImage(posterCanvas, x, y, drawWidth, drawHeight);
+                    } catch (error) {
+                        console.error('绘制海报失败:', error);
+                    }
+
+                    // 添加简洁的边框（无阴影）
+                    ctx.save();
+                    ctx.strokeStyle = `hsla(${(time * 30 + 180) % 360}, 50%, 60%, 0.6)`; // 更柔和的边框色
+                    ctx.lineWidth = 1.5; // 更细的边框
+                    ctx.setLineDash([3, 3]); // 更小的虚线
+                    ctx.lineDashOffset = time * 8;
+                    ctx.strokeRect(x - 0.75, y - 0.75, drawWidth + 1.5, drawHeight + 1.5);
+                    ctx.restore();
+
+                    // 更新进度
+                    const progressPercent = Math.round((frame / totalFrames) * 100);
+                    document.getElementById('progress').textContent = `录制中 ${progressPercent}%`;
+
+                    frame++;
+                    if (frame < totalFrames) {
+                        setTimeout(recordFrame, 1000 / 30); // 30fps
+                    } else {
+                        mediaRecorder.stop();
+                    }
+                }
+
+                // 开始录制第一帧
+                recordFrame();
+
+            } catch (error) {
+                console.error('视频生成失败:', error);
+                document.body.removeChild(progressDiv);
+                alert('❌ 视频生成失败，请检查浏览器是否支持视频录制功能');
+            }
+        }
+
+        // 绑定输入事件 - 当用户手动输入时清除选中的评论
+        document.getElementById('username').addEventListener('input', function() {
+            selectedComment = null; // 清除选中评论，使用表单数据
+            updatePreview();
+        });
+        document.getElementById('isVip').addEventListener('change', function() {
+            selectedComment = null;
+            updatePreview();
+        });
+        document.getElementById('date').addEventListener('input', function() {
+            selectedComment = null;
+            updatePreview();
+        });
+        document.getElementById('hotTag').addEventListener('change', function() {
+            selectedComment = null;
+            updatePreview();
+        });
+        document.getElementById('content').addEventListener('input', function() {
+            selectedComment = null; // 用户输入评论内容时清除选中评论
+            updatePreview();
+        });
+        document.getElementById('likes').addEventListener('input', function() {
+            selectedComment = null;
+            updatePreview();
+        });
+
+        // 绑定歌曲搜索回车事件
+        document.getElementById('songSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchSong();
+            }
+        });
+
+        // 点击其他地方隐藏搜索结果（但不隐藏评论界面）
+        document.addEventListener('click', function(e) {
+            const songSearch = document.getElementById('songSearch');
+            const songResults = document.getElementById('songResults');
+
+            // 检查是否在显示评论界面（通过检查是否有评论按钮）
+            const hasCommentButtons = songResults && songResults.innerHTML.includes('loadHotCommentsForSelectedSong');
+
+            // 如果正在显示评论界面，不要隐藏
+            if (hasCommentButtons) {
+                return;
+            }
+
+            if (!songSearch.contains(e.target) && !songResults.contains(e.target)) {
+                songResults.style.display = 'none';
+            }
+        });
+
+        // 添加全局错误监听器
+        window.addEventListener('error', function(e) {
+            if (e.target !== window) {
+                console.warn('资源加载失败:', e.target.src || e.target.href, e);
+            }
+        });
+
+        // 监听网络请求错误
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('未处理的Promise拒绝:', e.reason);
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置今天的日期
+            setToday();
+
+            // 初始化预览内容
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

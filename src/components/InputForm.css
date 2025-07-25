@@ -1,0 +1,137 @@
+.input-form {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  font-family: inherit;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #ff6b9d;
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.avatar-upload {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.upload-btn,
+.remove-btn,
+.today-btn {
+  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.remove-btn {
+  background: linear-gradient(45deg, #ff4757, #c44569);
+}
+
+.today-btn {
+  background: linear-gradient(45deg, #5784ff, #4834d4);
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.upload-btn:hover,
+.remove-btn:hover,
+.today-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.upload-btn:active,
+.remove-btn:active,
+.today-btn:active {
+  transform: translateY(0);
+}
+
+.form-group small {
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .input-form {
+    padding: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group textarea,
+  .form-group select {
+    padding: 10px;
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+  
+  .avatar-upload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .upload-btn,
+  .remove-btn {
+    width: 100%;
+    max-width: 150px;
+  }
+  
+  .today-btn {
+    width: 100%;
+    max-width: 120px;
+  }
+}

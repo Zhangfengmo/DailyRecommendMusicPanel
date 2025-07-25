@@ -4,7 +4,7 @@
 
 ![项目预览](https://img.shields.io/badge/React-18.2.0-blue) ![Vite](https://img.shields.io/badge/Vite-5.2.0-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## 📸 项目预览
+## � 项目预览
 
 <div align="center">
   <img src="image.png" alt="网易云音乐评论插画生成器界面预览" width="100%" style="max-width: 800px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
@@ -13,7 +13,7 @@
 
 > 💡 **提示**: 支持自定义用户名、评论内容、VIP标识、热评标签等，一键生成精美的网易云音乐风格评论插画！
 
-## 🚀 快速开始
+## �🚀 快速开始
 
 ### 最简单的使用方式
 
@@ -49,7 +49,7 @@ npm run dev
 - 📋 **快速模板** - 内置多个经典评论模板
 - 💾 **图片导出** - 支持保存为图片（移动端长按，桌面端右键）
 
-## 📖 使用方法
+## 使用方法
 
 ### 方法一：直接使用（推荐）
 
@@ -84,7 +84,7 @@ python server.py
 
 然后访问 `http://localhost:8000`
 
-## 📁 文件结构
+## 文件结构
 
 ```
 MusicHtml/
@@ -103,11 +103,10 @@ MusicHtml/
 ├── package.json         # 项目配置
 ├── vite.config.js       # Vite配置
 ├── index.html           # HTML模板
-├── image.png            # 项目预览图
 └── README.md           # 说明文档
 ```
 
-## 💡 使用技巧
+## 使用技巧
 
 ### 移动端保存图片
 1. 长按评论卡片区域
@@ -123,14 +122,14 @@ MusicHtml/
 - 选择预设模板可以快速填充经典评论内容
 - 可以在模板基础上进行修改
 
-## 🎨 自定义开发
+## 自定义开发
 
 如果你想要添加新功能或修改样式：
 
 1. 编辑 `simple.html` 文件（简单修改）
 2. 或者修改 `src/` 目录下的React组件（复杂功能）
 
-## 🌐 浏览器兼容性
+## 浏览器兼容性
 
 - ✅ Chrome (推荐)
 - ✅ Safari
@@ -147,7 +146,7 @@ MusicHtml/
 - **图片处理**: 原生HTML5 Canvas API
 - **本地服务器**: Python HTTP Server
 
-## 📸 功能展示
+## 📸 截图展示
 
 ### 桌面端界面
 - 左侧：信息输入表单

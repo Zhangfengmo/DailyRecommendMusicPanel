@@ -1,0 +1,196 @@
+.comment-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.comment-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.comment-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.avatar-container {
+  flex-shrink: 0;
+}
+
+.avatar-ring {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500, #00d2ff);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.username-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.username {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.vip-badge {
+  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date {
+  font-size: 13px;
+  color: #999;
+}
+
+.hot-tag {
+  background: #ff4757;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.likes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.likes-count {
+  font-size: 14px;
+  color: #ff4757;
+  font-weight: 600;
+}
+
+.like-icon {
+  font-size: 16px;
+}
+
+.comment-content {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  margin-bottom: 16px;
+  word-wrap: break-word;
+}
+
+.comment-footer {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.reply-count {
+  font-size: 14px;
+  color: #5784ff;
+  cursor: pointer;
+}
+
+.export-btn {
+  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+.export-btn:active {
+  transform: translateY(0);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .comment-card {
+    max-width: 100%;
+    padding: 16px;
+  }
+  
+  .avatar-ring {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .avatar {
+    width: 41px;
+    height: 41px;
+  }
+  
+  .username {
+    font-size: 15px;
+  }
+  
+  .comment-content {
+    font-size: 15px;
+  }
+  
+  .export-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
